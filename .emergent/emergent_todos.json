@@ -1,35 +1,39 @@
 [
   {
     "content": "Phase 2: Get design guidelines from design_agent",
-    "status": "in_progress"
+    "status": "completed"
   },
   {
     "content": "Phase 2: Install backend dependencies (PyJWT, bcrypt, websockets)",
-    "status": "pending"
+    "status": "completed"
   },
   {
     "content": "Phase 2: Install frontend dependencies (i18next, recharts, axios, framer-motion, sonner)",
-    "status": "pending"
+    "status": "completed"
   },
   {
     "content": "Phase 2: Build backend - auth, models, all module routers, simulator, export",
-    "status": "pending"
-  },
-  {
-    "content": "Phase 2: Build frontend - login, shell, dashboard, all 10 modules, i18n PT/EN",
-    "status": "pending"
+    "status": "completed"
   },
   {
     "content": "Phase 2: Seed default admin user (admin@firewall.local / Admin@123)",
-    "status": "pending"
+    "status": "completed"
+  },
+  {
+    "content": "Phase 2: Build frontend - foundation (i18n, theme, API, auth context, layout)",
+    "status": "completed"
+  },
+  {
+    "content": "Phase 2: Build frontend - login + dashboard + all 10 modules",
+    "status": "completed"
   },
   {
     "content": "Phase 2: Verify all user stories covered (login, dashboard live, CRUD, RBAC, export, i18n)",
-    "status": "pending"
+    "status": "completed"
   },
   {
     "content": "Phase 2: End-to-end testing using testing_agent_v3",
-    "status": "pending"
+    "status": "in_progress"
   },
   {
     "content": "Phase 2: Fix issues reported by testing agent",

@@ -1,54 +1,87 @@
-import { useEffect } from "react";
-import "@/App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import axios from "axios";
+import React from 'react';
+import '@/i18n';
+import '@/App.css';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster } from 'sonner';
+import { AuthProvider, useAuth } from '@/contexts/AuthContext';
+import AppShell from '@/components/layout/AppShell';
+import Login from '@/pages/Login';
+import Dashboard from '@/pages/Dashboard';
+import FirewallRules from '@/pages/FirewallRules';
+import NAT from '@/pages/NAT';
+import VPN from '@/pages/VPN';
+import DHCP from '@/pages/DHCP';
+import DNS from '@/pages/DNS';
+import Aliases from '@/pages/Aliases';
+import Interfaces from '@/pages/Interfaces';
+import Logs from '@/pages/Logs';
+import Users from '@/pages/Users';
+import Export from '@/pages/Export';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
+function Protected({ children }) {
+    const { user } = useAuth();
+    if (!user) return <Navigate to="/login" replace />;
+    return children;
+}
 
-const Home = () => {
-  const helloWorldApi = async () => {
-    try {
-      const response = await axios.get(`${API}/`);
-      console.log(response.data.message);
-    } catch (e) {
-      console.error(e, `errored out requesting / api`);
-    }
-  };
-
-  useEffect(() => {
-    helloWorldApi();
-  }, []);
-
-  return (
-    <div>
-      <header className="App-header">
-        <a
-          className="App-link"
-          href="https://emergent.sh"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img src="https://avatars.githubusercontent.com/in/1201222?s=120&u=2686cf91179bbafbc7a71bfbc43004cf9ae1acea&v=4" />
-        </a>
-        <p className="mt-5">Building something incredible ~!</p>
-      </header>
-    </div>
-  );
-};
+function AdminOnly({ children }) {
+    const { user } = useAuth();
+    if (!user) return <Navigate to="/login" replace />;
+    if (user.role !== 'admin') return <Navigate to="/" replace />;
+    return children;
+}
 
 function App() {
-  return (
-    <div className="App">
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />}>
-            <Route index element={<Home />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
-    </div>
-  );
+    return (
+        <div className="dark">
+            <AuthProvider>
+                <BrowserRouter>
+                    <Routes>
+                        <Route path="/login" element={<Login />} />
+                        <Route
+                            path="/"
+                            element={
+                                <Protected>
+                                    <AppShell />
+                                </Protected>
+                            }
+                        >
+                            <Route index element={<Dashboard />} />
+                            <Route path="interfaces" element={<Interfaces />} />
+                            <Route path="aliases" element={<Aliases />} />
+                            <Route path="firewall" element={<FirewallRules />} />
+                            <Route path="nat" element={<NAT />} />
+                            <Route path="vpn" element={<VPN />} />
+                            <Route path="dhcp" element={<DHCP />} />
+                            <Route path="dns" element={<DNS />} />
+                            <Route path="logs" element={<Logs />} />
+                            <Route
+                                path="users"
+                                element={
+                                    <AdminOnly>
+                                        <Users />
+                                    </AdminOnly>
+                                }
+                            />
+                            <Route path="export" element={<Export />} />
+                        </Route>
+                        <Route path="*" element={<Navigate to="/" replace />} />
+                    </Routes>
+                </BrowserRouter>
+                <Toaster
+                    position="top-right"
+                    theme="dark"
+                    toastOptions={{
+                        style: {
+                            background: 'hsl(222 44% 8%)',
+                            border: '1px solid hsl(222 22% 18%)',
+                            color: 'hsl(210 40% 98%)',
+                        },
+                    }}
+                />
+            </AuthProvider>
+        </div>
+    );
 }
 
 export default App;
