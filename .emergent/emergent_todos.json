@@ -1,34 +1,46 @@
 [
   {
-    "content": "Phase 4: Create ThemeContext (light/dark) + persistence",
+    "content": "Phase 5 PROD: Backend - system_apply.py (nftables apply/rollback/backup)",
     "status": "completed"
   },
   {
-    "content": "Phase 4: Update index.css with light theme variables and theme-aware utilities",
+    "content": "Phase 5 PROD: Backend - apply.py router + refactor export.py to expose generator helpers",
     "status": "completed"
   },
   {
-    "content": "Phase 4: Add theme toggle (Sun/Moon) to Topbar; also on Login + BlockedPublic pages",
+    "content": "Phase 5 PROD: Update seed.py to respect SEED_DEMO_DATA + ADMIN_EMAIL/ADMIN_PASSWORD env vars",
     "status": "completed"
   },
   {
-    "content": "Phase 4: Refactor hardcoded white/black overlays to theme-aware foreground/background",
+    "content": "Phase 5 PROD: Frontend - Add Apply/Rollback buttons + status to Export page; update i18n",
     "status": "completed"
   },
   {
-    "content": "Phase 4: Add Live Feed tab to Attacks page with animated real-time event stream",
+    "content": "Phase 5 PROD: Dockerfiles (backend with nftables binary, frontend multi-stage with nginx)",
     "status": "completed"
   },
   {
-    "content": "Phase 4: Update i18n PT/EN with theme + live feed strings",
+    "content": "Phase 5 PROD: docker-compose.yml (host network, NET_ADMIN cap, mongo volume)",
     "status": "completed"
   },
   {
-    "content": "Phase 4: Manual smoke test of theme toggle + live attack feed across pages",
+    "content": "Phase 5 PROD: .env.production.example, .dockerignore files",
     "status": "completed"
   },
   {
-    "content": "Phase 4: End-to-end testing via testing_agent_v3",
-    "status": "in_progress"
+    "content": "Phase 5 PROD: install.sh (one-shot installer for Ubuntu 24)",
+    "status": "completed"
+  },
+  {
+    "content": "Phase 5 PROD: DEPLOY.md (PT-BR deployment guide with safety notes)",
+    "status": "completed"
+  },
+  {
+    "content": "Phase 5 PROD: Verify preview still works after backend refactor (export still returns plain text)",
+    "status": "completed"
+  },
+  {
+    "content": "Phase 5 PROD: Generate deployment tarball firewall-console-deploy.tar.gz",
+    "status": "completed"
   }
 ]

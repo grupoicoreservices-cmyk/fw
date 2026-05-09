@@ -321,5 +321,23 @@
     "no_wan": "No active WAN interface to auto-create outbound",
     "nat_to": "NAT to",
     "subtitle_outbound": "Address translation for traffic leaving to the Internet."
+  },
+  "apply": {
+    "real_mode": "REAL mode enabled",
+    "simulation_mode": "Simulation mode",
+    "real_mode_hint": "Generated rules will be applied directly on the host (nft -f). Automatic backups before each apply. Use Rollback to revert.",
+    "simulation_mode_hint": "FIREWALL_APPLY_REAL=false. Download the scripts and apply them manually on the server (sudo nft -f nftables.conf).",
+    "apply_now": "Apply on host now",
+    "applying": "Applying...",
+    "rollback": "Rollback last",
+    "last_apply": "Last apply",
+    "applied_success": "Rules successfully applied on the host",
+    "rollback_success": "Rollback completed successfully",
+    "confirm_title": "Apply nftables rules on the host?",
+    "confirm_description": "This will replace the current ruleset with the configured one.",
+    "confirm_warning": "⚠️ Warning: misconfigured rules can lock you out (SSH, web). Review before applying. An automatic backup will be created.",
+    "rollback_confirm_title": "Rollback to the previous backup?",
+    "rollback_confirm_description": "The current ruleset will be discarded and the last backup will be restored.",
+    "backups": "Available backups"
   }
 }

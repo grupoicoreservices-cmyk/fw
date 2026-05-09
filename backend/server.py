@@ -41,6 +41,7 @@ from app.routers import (
     export as export_router,
     attacks as attacks_router,
     block_page as block_page_router,
+    apply as apply_router,
 )
 
 set_db(db)
@@ -93,6 +94,7 @@ api_router.include_router(interfaces_router.router)
 api_router.include_router(export_router.router)
 api_router.include_router(attacks_router.router)
 api_router.include_router(block_page_router.router)
+api_router.include_router(apply_router.router)
 
 app.include_router(api_router)
 

@@ -321,5 +321,23 @@
     "no_wan": "Nenhuma interface WAN ativa para criar saída automática",
     "nat_to": "NAT para",
     "subtitle_outbound": "Tradução de endereços para tráfego saindo para a Internet."
+  },
+  "apply": {
+    "real_mode": "Modo REAL ativado",
+    "simulation_mode": "Modo simulação",
+    "real_mode_hint": "As regras geradas serão aplicadas diretamente no host (nft -f). Backups automáticos antes de cada aplicação. Use Rollback para reverter.",
+    "simulation_mode_hint": "FIREWALL_APPLY_REAL=false. Baixe os scripts e aplique manualmente no servidor (sudo nft -f nftables.conf).",
+    "apply_now": "Aplicar no host agora",
+    "applying": "Aplicando...",
+    "rollback": "Reverter última",
+    "last_apply": "Última aplicação",
+    "applied_success": "Regras aplicadas com sucesso no host",
+    "rollback_success": "Rollback executado com sucesso",
+    "confirm_title": "Aplicar regras nftables no host?",
+    "confirm_description": "Isto vai substituir o ruleset atual do servidor pelo ruleset gerado a partir das regras configuradas.",
+    "confirm_warning": "⚠️ Atenção: regras mal configuradas podem bloquear seu próprio acesso (SSH, web). Revise antes de aplicar. Um backup automático será criado.",
+    "rollback_confirm_title": "Reverter para o backup anterior?",
+    "rollback_confirm_description": "O ruleset atual será descartado e o último backup será restaurado.",
+    "backups": "Backups disponíveis"
   }
 }

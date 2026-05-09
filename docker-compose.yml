@@ -1,0 +1,64 @@
+# Firewall Console - Production stack for Ubuntu 24
+# All services run on host network so the backend can manipulate nftables
+# and Nginx can serve port 80 directly.
+#
+# Bring up: docker compose up -d --build
+# Logs:     docker compose logs -f
+# Stop:     docker compose down
+# Update:   docker compose pull && docker compose up -d --build
+
+services:
+  mongo:
+    image: mongo:7
+    container_name: firewall-mongo
+    restart: unless-stopped
+    network_mode: host
+    # Bind to loopback only - mongo is private to backend on the same host
+    command: ["--bind_ip", "127.0.0.1", "--port", "27117", "--quiet", "--logpath", "/dev/null"]
+    volumes:
+      - mongo_data:/data/db
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: firewall-console-backend:latest
+    container_name: firewall-backend
+    restart: unless-stopped
+    network_mode: host
+    # Apply nftables on host requires NET_ADMIN + NET_RAW
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    depends_on:
+      - mongo
+    environment:
+      MONGO_URL: mongodb://127.0.0.1:27117
+      DB_NAME: ${DB_NAME:-firewall_console}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set in .env}
+      CORS_ORIGINS: ${CORS_ORIGINS:-*}
+      SEED_DEMO_DATA: ${SEED_DEMO_DATA:-false}
+      FIREWALL_APPLY_REAL: ${FIREWALL_APPLY_REAL:-true}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@firewall.local}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-Admin@123}
+      FIREWALL_WORK_DIR: /var/lib/firewall-console
+      NFT_BIN: /usr/sbin/nft
+    volumes:
+      - firewall_state:/var/lib/firewall-console
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: firewall-console-frontend:latest
+    container_name: firewall-frontend
+    restart: unless-stopped
+    network_mode: host
+    depends_on:
+      - backend
+
+volumes:
+  mongo_data:
+    driver: local
+  firewall_state:
+    driver: local

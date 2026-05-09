@@ -23,7 +23,10 @@ def _to_nft_addr(value: str) -> str:
 
 @router.get('/nftables', response_class=PlainTextResponse)
 async def export_nftables(user: dict = Depends(get_current_user)):
-    db = get_db()
+    return await generate_nftables(get_db())
+
+
+async def generate_nftables(db) -> str:
     rules = await db.firewall_rules.find({'enabled': True}, {'_id': 0}).sort('order', 1).to_list(2000)
     nat = await db.nat_rules.find({'enabled': True}, {'_id': 0}).to_list(500)
     interfaces = await db.interfaces.find({'enabled': True}, {'_id': 0}).to_list(50)
@@ -103,7 +106,10 @@ async def export_nftables(user: dict = Depends(get_current_user)):
 
 @router.get('/iptables', response_class=PlainTextResponse)
 async def export_iptables(user: dict = Depends(get_current_user)):
-    db = get_db()
+    return await generate_iptables(get_db())
+
+
+async def generate_iptables(db) -> str:
     rules = await db.firewall_rules.find({'enabled': True}, {'_id': 0}).sort('order', 1).to_list(2000)
     nat = await db.nat_rules.find({'enabled': True}, {'_id': 0}).to_list(500)
     interfaces = await db.interfaces.find({'enabled': True}, {'_id': 0}).to_list(50)

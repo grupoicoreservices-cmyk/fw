@@ -1,24 +1,34 @@
+import os
 from datetime import datetime, timezone
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from app.security import hash_password
 from app.utils import gen_id, now_iso
+
+SEED_DEMO_DATA = os.environ.get('SEED_DEMO_DATA', 'true').lower() in ('1', 'true', 'yes', 'on')
+ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL', 'admin@firewall.local').lower()
+ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'Admin@123')
 
 
 async def seed_initial_data(db: AsyncIOMotorDatabase) -> None:
     # Migration: ensure existing nat_rules have a direction field
     await db.nat_rules.update_many({'direction': {'$exists': False}}, {'$set': {'direction': 'inbound'}})
 
-    # Seed admin user
-    if not await db.users.find_one({'email': 'admin@firewall.local'}):
+    # Always seed admin (idempotent)
+    if not await db.users.find_one({'email': ADMIN_EMAIL}):
         await db.users.insert_one({
             'id': gen_id(),
-            'email': 'admin@firewall.local',
+            'email': ADMIN_EMAIL,
             'name': 'Administrator',
             'role': 'admin',
-            'password_hash': hash_password('Admin@123'),
+            'password_hash': hash_password(ADMIN_PASSWORD),
             'enabled': True,
             'created_at': now_iso(),
         })
+
+    if not SEED_DEMO_DATA:
+        # Production: only the admin user is seeded; no demo data
+        return
+
     if not await db.users.find_one({'email': 'operator@firewall.local'}):
         await db.users.insert_one({
             'id': gen_id(),
