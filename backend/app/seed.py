@@ -5,6 +5,9 @@ from app.utils import gen_id, now_iso
 
 
 async def seed_initial_data(db: AsyncIOMotorDatabase) -> None:
+    # Migration: ensure existing nat_rules have a direction field
+    await db.nat_rules.update_many({'direction': {'$exists': False}}, {'$set': {'direction': 'inbound'}})
+
     # Seed admin user
     if not await db.users.find_one({'email': 'admin@firewall.local'}):
         await db.users.insert_one({
@@ -68,10 +71,28 @@ async def seed_initial_data(db: AsyncIOMotorDatabase) -> None:
     # Seed NAT rules
     if await db.nat_rules.count_documents({}) == 0:
         await db.nat_rules.insert_many([
-            {'id': gen_id(), 'enabled': True, 'interface': 'WAN', 'protocol': 'tcp', 'external_port': '443', 'internal_ip': '192.168.50.10', 'internal_port': '443', 'description': 'HTTPS para servidor web', 'created_at': now_iso()},
-            {'id': gen_id(), 'enabled': True, 'interface': 'WAN', 'protocol': 'tcp', 'external_port': '8080', 'internal_ip': '192.168.50.11', 'internal_port': '80', 'description': 'App interno para externo', 'created_at': now_iso()},
-            {'id': gen_id(), 'enabled': False, 'interface': 'WAN', 'protocol': 'udp', 'external_port': '51820', 'internal_ip': '192.168.1.5', 'internal_port': '51820', 'description': 'WireGuard (desativado)', 'created_at': now_iso()},
+            {'id': gen_id(), 'enabled': True, 'direction': 'inbound', 'interface': 'WAN', 'protocol': 'tcp', 'external_port': '443', 'internal_ip': '192.168.50.10', 'internal_port': '443', 'source': 'any', 'description': 'HTTPS para servidor web', 'created_at': now_iso()},
+            {'id': gen_id(), 'enabled': True, 'direction': 'inbound', 'interface': 'WAN', 'protocol': 'tcp', 'external_port': '8080', 'internal_ip': '192.168.50.11', 'internal_port': '80', 'source': 'any', 'description': 'App interno para externo', 'created_at': now_iso()},
+            {'id': gen_id(), 'enabled': False, 'direction': 'inbound', 'interface': 'WAN', 'protocol': 'udp', 'external_port': '51820', 'internal_ip': '192.168.1.5', 'internal_port': '51820', 'source': 'any', 'description': 'WireGuard (desativado)', 'created_at': now_iso()},
+            {'id': gen_id(), 'enabled': True, 'direction': 'outbound', 'interface': 'WAN', 'protocol': 'any', 'external_port': '', 'internal_ip': '', 'internal_port': '', 'source': 'any', 'nat_to': 'masquerade', 'description': 'Auto outbound NAT (MASQUERADE) on WAN → eth0', 'created_at': now_iso()},
         ])
+
+    # Seed block page config
+    if await db.block_page_config.count_documents({}) == 0:
+        await db.block_page_config.insert_one({
+            'id': gen_id(),
+            'title': 'Acesso bloqueado',
+            'headline': 'Você foi bloqueado pelo firewall',
+            'message': 'Sua conexão foi automaticamente bloqueada por violação da política de segurança desta rede. Se você acredita que isso é um engano, entre em contato com o administrador.',
+            'contact_email': 'security@firewall.local',
+            'support_url': '',
+            'organization': 'Firewall Console',
+            'reference_id_visible': True,
+            'show_reason': True,
+            'show_ip': True,
+            'accent_color': '#f87171',
+            'created_at': now_iso(),
+        })
 
     # Seed VPN configs
     if await db.vpn_configs.count_documents({}) == 0:

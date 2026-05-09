@@ -456,6 +456,9 @@ class FirewallAPITester:
                 if content.startswith('#!/usr/sbin/nft -f') and 'table inet firewall' in content:
                     self.tests_passed += 1
                     self.log("✅ PASSED - nftables export returns valid script", "PASS")
+                    # Check for NAT rules (Phase 3)
+                    if 'masquerade' in content.lower() or 'dnat' in content.lower():
+                        self.log("✅ nftables export includes NAT rules", "INFO")
                 else:
                     self.tests_failed += 1
                     self.log("❌ FAILED - nftables export content invalid", "FAIL")
@@ -479,6 +482,9 @@ class FirewallAPITester:
                 if content.startswith('#!/bin/bash') and 'iptables' in content:
                     self.tests_passed += 1
                     self.log("✅ PASSED - iptables export returns valid script", "PASS")
+                    # Check for NAT rules (Phase 3)
+                    if 'MASQUERADE' in content or 'DNAT' in content:
+                        self.log("✅ iptables export includes NAT rules", "INFO")
                 else:
                     self.tests_failed += 1
                     self.log("❌ FAILED - iptables export content invalid", "FAIL")
@@ -492,10 +498,321 @@ class FirewallAPITester:
             self.log(f"❌ FAILED - Exception: {str(e)}", "FAIL")
             self.failures.append(f"GET /export/iptables: {str(e)}")
 
+    def test_phase3_attacks_and_block_page(self):
+        """Test Phase 3: Attack Analysis, Block Page, and NAT Outbound"""
+        self.log("=" * 60, "INFO")
+        self.log("TESTING PHASE 3: ATTACKS & BLOCK PAGE", "INFO")
+        self.log("=" * 60, "INFO")
+
+        # Test GET /attacks/ with default params
+        success, response = self.test(
+            "GET /attacks/ (default)",
+            "GET",
+            "attacks/",
+            200,
+            token=self.admin_token
+        )
+        if success:
+            if 'items' in response and 'total' in response and 'window_minutes' in response:
+                self.log(f"Attacks returned {response['total']} attackers in {response['window_minutes']} min window", "INFO")
+                # Check structure of first item if exists
+                if response['items']:
+                    item = response['items'][0]
+                    required_fields = ['src_ip', 'src_hostname', 'src_country', 'src_flag', 'direction', 
+                                     'attack_types', 'count', 'severity_max', 'targets', 'is_blocked']
+                    missing = [f for f in required_fields if f not in item]
+                    if missing:
+                        self.failures.append(f"GET /attacks/: Missing fields in item: {missing}")
+                    else:
+                        self.log("✅ Attack item structure is correct", "INFO")
+            else:
+                self.failures.append("GET /attacks/: Missing required fields (items, total, window_minutes)")
+
+        # Test GET /attacks/ with direction filter
+        for direction in ['internal', 'external', 'all']:
+            self.test(
+                f"GET /attacks/?direction={direction}",
+                "GET",
+                "attacks/",
+                200,
+                token=self.admin_token,
+                params={"direction": direction}
+            )
+
+        # Test GET /attacks/ with severity filter
+        for severity in ['warning', 'critical', 'all']:
+            self.test(
+                f"GET /attacks/?severity={severity}",
+                "GET",
+                "attacks/",
+                200,
+                token=self.admin_token,
+                params={"severity": severity}
+            )
+
+        # Test GET /attacks/ with window filter
+        for minutes in [5, 15, 60, 120]:
+            self.test(
+                f"GET /attacks/?minutes={minutes}",
+                "GET",
+                "attacks/",
+                200,
+                token=self.admin_token,
+                params={"minutes": minutes}
+            )
+
+        # Test GET /attacks/summary
+        success, response = self.test(
+            "GET /attacks/summary",
+            "GET",
+            "attacks/summary",
+            200,
+            token=self.admin_token
+        )
+        if success:
+            required_fields = ['unique_attackers', 'total_blocked_events', 'attack_types', 
+                             'severity_counts', 'currently_blocked_ips', 'window_minutes']
+            missing = [f for f in required_fields if f not in response]
+            if missing:
+                self.failures.append(f"GET /attacks/summary: Missing fields: {missing}")
+            else:
+                self.log(f"✅ Summary: {response['unique_attackers']} attackers, {response['currently_blocked_ips']} blocked", "INFO")
+
+        # Test POST /attacks/block (admin - should work)
+        test_ip = "203.0.113.99"
+        success, response = self.test(
+            "POST /attacks/block (admin)",
+            "POST",
+            "attacks/block",
+            200,
+            token=self.admin_token,
+            data={
+                "ip": test_ip,
+                "hostname": "test-attacker.example.com",
+                "reason": "Automated test block",
+                "redirect_to_block_page": True
+            }
+        )
+        if success:
+            if 'ok' in response and response['ok']:
+                self.log(f"✅ IP {test_ip} blocked successfully", "INFO")
+            else:
+                self.failures.append("POST /attacks/block: Response missing 'ok' field or ok=False")
+
+        # Test POST /attacks/block (operator - should work)
+        test_ip_operator = "203.0.113.100"
+        self.test(
+            "POST /attacks/block (operator)",
+            "POST",
+            "attacks/block",
+            200,
+            token=self.operator_token,
+            data={
+                "ip": test_ip_operator,
+                "hostname": "test-attacker2.example.com",
+                "reason": "Operator test block",
+                "redirect_to_block_page": False
+            }
+        )
+
+        # Test POST /attacks/block (viewer - should fail with 403)
+        self.test(
+            "POST /attacks/block (viewer - should be 403)",
+            "POST",
+            "attacks/block",
+            403,
+            token=self.viewer_token,
+            data={
+                "ip": "203.0.113.101",
+                "hostname": "test.example.com",
+                "reason": "Should fail",
+                "redirect_to_block_page": True
+            }
+        )
+
+        # Test GET /attacks/blocked-list
+        success, response = self.test(
+            "GET /attacks/blocked-list",
+            "GET",
+            "attacks/blocked-list",
+            200,
+            token=self.admin_token
+        )
+        if success:
+            if 'addresses' in response and isinstance(response['addresses'], list):
+                self.log(f"✅ Blocked list contains {len(response['addresses'])} IPs", "INFO")
+                if test_ip in response['addresses']:
+                    self.log(f"✅ Test IP {test_ip} is in blocked list", "INFO")
+            else:
+                self.failures.append("GET /attacks/blocked-list: Missing 'addresses' array")
+
+        # Test POST /attacks/unblock
+        success, response = self.test(
+            "POST /attacks/unblock",
+            "POST",
+            "attacks/unblock",
+            200,
+            token=self.admin_token,
+            data={"ip": test_ip}
+        )
+        if success and response.get('ok'):
+            self.log(f"✅ IP {test_ip} unblocked successfully", "INFO")
+
+        # Test GET /block-page/ (PUBLIC - no auth)
+        url = f"{self.base_url}/block-page/"
+        try:
+            response = requests.get(url, timeout=10)
+            self.tests_run += 1
+            if response.status_code == 200:
+                data = response.json()
+                if 'config' in data and 'visitor' in data:
+                    self.tests_passed += 1
+                    self.log("✅ PASSED - Public block page accessible without auth", "PASS")
+                    visitor = data['visitor']
+                    if 'ip' in visitor and 'reference_id' in visitor and 'timestamp' in visitor:
+                        self.log("✅ Visitor info includes ip, reference_id, timestamp", "INFO")
+                    else:
+                        self.failures.append("GET /block-page/: Visitor info missing required fields")
+                else:
+                    self.tests_failed += 1
+                    self.failures.append("GET /block-page/: Missing 'config' or 'visitor' fields")
+            else:
+                self.tests_failed += 1
+                self.failures.append(f"GET /block-page/: Expected 200, got {response.status_code}")
+        except Exception as e:
+            self.tests_failed += 1
+            self.failures.append(f"GET /block-page/: {str(e)}")
+
+        # Test GET /block-page/admin (auth required)
+        success, response = self.test(
+            "GET /block-page/admin (with auth)",
+            "GET",
+            "block-page/admin",
+            200,
+            token=self.admin_token
+        )
+
+        # Test GET /block-page/admin (no auth - should fail)
+        self.test(
+            "GET /block-page/admin (no auth - should be 401)",
+            "GET",
+            "block-page/admin",
+            401
+        )
+
+        # Test PUT /block-page/admin (admin - should work)
+        block_page_config = {
+            "title": "Access Blocked - Test",
+            "headline": "You have been blocked by the firewall",
+            "message": "Your connection was automatically blocked due to security policy violation.",
+            "contact_email": "security@test.local",
+            "support_url": "https://support.test.local",
+            "organization": "Test Firewall Console",
+            "reference_id_visible": True,
+            "show_reason": True,
+            "show_ip": True,
+            "accent_color": "#f87171"
+        }
+        success, response = self.test(
+            "PUT /block-page/admin (admin)",
+            "PUT",
+            "block-page/admin",
+            200,
+            token=self.admin_token,
+            data=block_page_config
+        )
+        if success:
+            self.log("✅ Block page config updated successfully", "INFO")
+
+        # Test PUT /block-page/admin (viewer - should fail with 403)
+        self.test(
+            "PUT /block-page/admin (viewer - should be 403)",
+            "PUT",
+            "block-page/admin",
+            403,
+            token=self.viewer_token,
+            data=block_page_config
+        )
+
+        # Test GET /nat/?direction=outbound
+        success, response = self.test(
+            "GET /nat/?direction=outbound",
+            "GET",
+            "nat/",
+            200,
+            token=self.admin_token,
+            params={"direction": "outbound"}
+        )
+        if success and isinstance(response, list):
+            outbound_count = len(response)
+            self.log(f"✅ NAT outbound rules: {outbound_count}", "INFO")
+            # Check if any rule has nat_to=masquerade
+            masquerade_rules = [r for r in response if r.get('nat_to') == 'masquerade']
+            if masquerade_rules:
+                self.log(f"✅ Found {len(masquerade_rules)} MASQUERADE rules", "INFO")
+
+        # Test GET /nat/?direction=inbound
+        success, response = self.test(
+            "GET /nat/?direction=inbound",
+            "GET",
+            "nat/",
+            200,
+            token=self.admin_token,
+            params={"direction": "inbound"}
+        )
+        if success and isinstance(response, list):
+            self.log(f"✅ NAT inbound rules: {len(response)}", "INFO")
+
+        # Test POST /nat/auto-outbound (admin - should work)
+        success, response = self.test(
+            "POST /nat/auto-outbound (admin - first call)",
+            "POST",
+            "nat/auto-outbound",
+            200,
+            token=self.admin_token
+        )
+        if success:
+            if 'created' in response and 'count' in response:
+                self.log(f"✅ Auto-outbound created {response['count']} rules", "INFO")
+            else:
+                self.failures.append("POST /nat/auto-outbound: Missing 'created' or 'count' fields")
+
+        # Test POST /nat/auto-outbound (idempotent - second call should create 0)
+        success, response = self.test(
+            "POST /nat/auto-outbound (idempotent - second call)",
+            "POST",
+            "nat/auto-outbound",
+            200,
+            token=self.admin_token
+        )
+        if success:
+            if response.get('count') == 0:
+                self.log("✅ Auto-outbound is idempotent (no duplicates)", "INFO")
+            else:
+                self.log(f"⚠️  Auto-outbound created {response.get('count')} rules on second call (expected 0)", "WARN")
+
+        # Test POST /nat/auto-outbound (operator - should work)
+        self.test(
+            "POST /nat/auto-outbound (operator)",
+            "POST",
+            "nat/auto-outbound",
+            200,
+            token=self.operator_token
+        )
+
+        # Test POST /nat/auto-outbound (viewer - should fail with 403)
+        self.test(
+            "POST /nat/auto-outbound (viewer - should be 403)",
+            "POST",
+            "nat/auto-outbound",
+            403,
+            token=self.viewer_token
+        )
+
     def run_all_tests(self):
         """Run all test suites"""
         self.log("=" * 60, "INFO")
-        self.log("FIREWALL CONSOLE BACKEND API TESTING", "INFO")
+        self.log("FIREWALL CONSOLE BACKEND API TESTING - PHASE 3", "INFO")
         self.log(f"Base URL: {self.base_url}", "INFO")
         self.log("=" * 60, "INFO")
 
@@ -504,8 +821,15 @@ class FirewallAPITester:
             self.log("CRITICAL: Authentication failed - stopping tests", "ERROR")
             return 1
 
+        # Quick smoke tests for existing modules
+        self.log("Running quick smoke tests for existing modules...", "INFO")
         self.test_metrics()
         self.test_logs()
+        
+        # Phase 3 focus: Attack Analysis, Block Page, NAT Outbound
+        self.test_phase3_attacks_and_block_page()
+        
+        # Other modules
         self.test_firewall_rules()
         self.test_other_modules()
         self.test_users()

@@ -30,7 +30,9 @@
     "dhcp": "DHCP",
     "dns": "DNS",
     "logs": "Logs",
+    "attacks": "Attack Analysis",
     "users": "Users",
+    "block_page": "Block Page",
     "export": "Export"
   },
   "common": {
@@ -236,5 +238,80 @@
     "download_nftables": "Download nftables.conf",
     "download_iptables": "Download iptables.sh",
     "hint": "Apply with sudo nft -f nftables.conf or sudo bash iptables.sh"
+  },
+  "attacks": {
+    "title": "Attack Analysis",
+    "subtitle": "Identify attackers in real time and block threats with one click.",
+    "unique_attackers": "Unique attackers",
+    "blocked_events": "Blocked events",
+    "currently_blocked": "Active blocked IPs",
+    "window": "Last {{minutes}} min",
+    "all": "All",
+    "internal": "Internal",
+    "external": "External",
+    "direction": "Origin",
+    "ip": "Source IP",
+    "hostname": "Hostname",
+    "country": "Country",
+    "attack_types": "Attack types",
+    "hits": "Events",
+    "severity": "Severity",
+    "targets": "Targets",
+    "first_seen": "First",
+    "last_seen": "Last",
+    "block": "Block",
+    "unblock": "Unblock",
+    "blocked": "BLOCKED",
+    "confirm_block": "Block IP {{ip}}?",
+    "blocked_success": "IP {{ip}} blocked and rule created",
+    "unblocked_success": "IP {{ip}} unblocked",
+    "redirect_to_block_page": "Redirect traffic to block page",
+    "block_reason": "Reason (optional)",
+    "types": {
+      "port_scan": "Port Scan",
+      "brute_force": "Brute Force",
+      "sql_injection": "SQL Injection",
+      "malware_c2": "Malware C2",
+      "suspicious_traffic": "Suspicious Traffic",
+      "repeated_attempts": "Repeated Attempts",
+      "high_traffic": "Anomalous Traffic",
+      "normal": "Normal"
+    },
+    "empty": "No attacks detected in this window. Great!"
+  },
+  "block_page": {
+    "title_admin": "Block Page Configuration",
+    "subtitle_admin": "Customize the page shown to clients whose access was blocked.",
+    "preview": "Preview",
+    "open_public": "Open public page",
+    "form": {
+      "title": "Tab title",
+      "headline": "Main headline",
+      "message": "Message",
+      "organization": "Organization",
+      "contact_email": "Contact email",
+      "support_url": "Support URL",
+      "accent_color": "Accent color",
+      "show_ip": "Show visitor IP",
+      "show_reason": "Show reason",
+      "reference_id_visible": "Show reference ID"
+    },
+    "public": {
+      "default_reason": "Network security policy",
+      "your_ip": "Your IP",
+      "reference": "Reference",
+      "timestamp": "Date/time",
+      "contact": "If you believe this is a mistake, contact",
+      "support": "Support"
+    }
+  },
+  "nat_outbound": {
+    "tab_inbound": "Inbound (DNAT)",
+    "tab_outbound": "Outbound (SNAT/MASQUERADE)",
+    "auto_create": "Auto-create outbound (MASQUERADE)",
+    "auto_created": "Outbound rules created: {{count}}",
+    "no_wan": "No active WAN interface to auto-create outbound",
+    "nat_to": "NAT to",
+    "subtitle_outbound": "Address translation for traffic leaving to the Internet."
   }
 }

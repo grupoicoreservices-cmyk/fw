@@ -26,7 +26,9 @@ const routeTitles = {
     '/dhcp': { key: 'nav.dhcp' },
     '/dns': { key: 'nav.dns' },
     '/logs': { key: 'nav.logs' },
+    '/attacks': { key: 'nav.attacks' },
     '/users': { key: 'nav.users' },
+    '/block-page': { key: 'nav.block_page' },
     '/export': { key: 'nav.export' },
 };
 

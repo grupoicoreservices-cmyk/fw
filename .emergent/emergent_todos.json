@@ -1,42 +1,42 @@
 [
   {
-    "content": "Phase 2: Get design guidelines from design_agent",
+    "content": "Phase 3: Backend - Update simulator to track attackers (hostname, country, attack patterns)",
     "status": "completed"
   },
   {
-    "content": "Phase 2: Install backend dependencies (PyJWT, bcrypt, websockets)",
+    "content": "Phase 3: Backend - New /api/attacks router (list attackers, block, redirect)",
     "status": "completed"
   },
   {
-    "content": "Phase 2: Install frontend dependencies (i18next, recharts, axios, framer-motion, sonner)",
+    "content": "Phase 3: Backend - Extend NAT router (outbound + auto-create MASQUERADE) + Block-page config router",
     "status": "completed"
   },
   {
-    "content": "Phase 2: Build backend - auth, models, all module routers, simulator, export",
+    "content": "Phase 3: Update i18n (PT/EN) with attack/block-page/outbound NAT strings",
     "status": "completed"
   },
   {
-    "content": "Phase 2: Seed default admin user (admin@firewall.local / Admin@123)",
+    "content": "Phase 3: Frontend - Attack Analysis page with table + Block button + filters",
     "status": "completed"
   },
   {
-    "content": "Phase 2: Build frontend - foundation (i18n, theme, API, auth context, layout)",
+    "content": "Phase 3: Frontend - Public Block Page (/blocked) + Admin Block Page config screen",
     "status": "completed"
   },
   {
-    "content": "Phase 2: Build frontend - login + dashboard + all 10 modules",
+    "content": "Phase 3: Frontend - Update NAT page with Inbound/Outbound tabs + auto-create button",
     "status": "completed"
   },
   {
-    "content": "Phase 2: Verify all user stories covered (login, dashboard live, CRUD, RBAC, export, i18n)",
+    "content": "Phase 3: Update sidebar/routes with Attacks + Block Page menus",
     "status": "completed"
   },
   {
-    "content": "Phase 2: End-to-end testing using testing_agent_v3",
+    "content": "Phase 3: End-to-end testing of new features via testing_agent_v3",
     "status": "completed"
   },
   {
-    "content": "Phase 2: Fix issues reported by testing agent (one ObjectId fix applied)",
+    "content": "Phase 3: Fix issues from testing - none reported, manual smoke verified",
     "status": "completed"
   }
 ]

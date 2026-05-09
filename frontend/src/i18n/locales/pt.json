@@ -30,7 +30,9 @@
     "dhcp": "DHCP",
     "dns": "DNS",
     "logs": "Logs",
+    "attacks": "Análise de Ataques",
     "users": "Usuários",
+    "block_page": "Página de Bloqueio",
     "export": "Exportar"
   },
   "common": {
@@ -236,5 +238,80 @@
     "download_nftables": "Baixar nftables.conf",
     "download_iptables": "Baixar iptables.sh",
     "hint": "Aplique com sudo nft -f nftables.conf ou sudo bash iptables.sh"
+  },
+  "attacks": {
+    "title": "Análise de Ataques",
+    "subtitle": "Identifique atacantes em tempo real e bloqueie ameaças com um clique.",
+    "unique_attackers": "Atacantes únicos",
+    "blocked_events": "Eventos bloqueados",
+    "currently_blocked": "IPs bloqueados ativos",
+    "window": "Últimos {{minutes}} min",
+    "all": "Todos",
+    "internal": "Interno",
+    "external": "Externo",
+    "direction": "Origem",
+    "ip": "IP de origem",
+    "hostname": "Hostname",
+    "country": "País",
+    "attack_types": "Tipos de ataque",
+    "hits": "Eventos",
+    "severity": "Severidade",
+    "targets": "Alvos",
+    "first_seen": "Primeira",
+    "last_seen": "Última",
+    "block": "Bloquear",
+    "unblock": "Desbloquear",
+    "blocked": "BLOQUEADO",
+    "confirm_block": "Bloquear o IP {{ip}}?",
+    "blocked_success": "IP {{ip}} bloqueado e regra criada",
+    "unblocked_success": "IP {{ip}} desbloqueado",
+    "redirect_to_block_page": "Redirecionar tráfego para página de bloqueio",
+    "block_reason": "Motivo (opcional)",
+    "types": {
+      "port_scan": "Port Scan",
+      "brute_force": "Brute Force",
+      "sql_injection": "SQL Injection",
+      "malware_c2": "Malware C2",
+      "suspicious_traffic": "Tráfego Suspeito",
+      "repeated_attempts": "Tentativas Repetidas",
+      "high_traffic": "Tráfego Anômalo",
+      "normal": "Normal"
+    },
+    "empty": "Nenhum ataque detectado nesta janela. Ótimo!"
+  },
+  "block_page": {
+    "title_admin": "Configuração da Página de Bloqueio",
+    "subtitle_admin": "Personalize a página exibida a clientes que tiveram acesso bloqueado.",
+    "preview": "Pré-visualização",
+    "open_public": "Abrir página pública",
+    "form": {
+      "title": "Título da aba",
+      "headline": "Título principal",
+      "message": "Mensagem",
+      "organization": "Organização",
+      "contact_email": "E-mail de contato",
+      "support_url": "URL de suporte",
+      "accent_color": "Cor de destaque",
+      "show_ip": "Mostrar IP do visitante",
+      "show_reason": "Mostrar motivo",
+      "reference_id_visible": "Mostrar ID de referência"
+    },
+    "public": {
+      "default_reason": "Política de segurança da rede",
+      "your_ip": "Seu IP",
+      "reference": "Referência",
+      "timestamp": "Data/hora",
+      "contact": "Em caso de dúvida, contate",
+      "support": "Suporte"
+    }
+  },
+  "nat_outbound": {
+    "tab_inbound": "Entrada (DNAT)",
+    "tab_outbound": "Saída (SNAT/MASQUERADE)",
+    "auto_create": "Criar saída automática (MASQUERADE)",
+    "auto_created": "Regras de saída criadas: {{count}}",
+    "no_wan": "Nenhuma interface WAN ativa para criar saída automática",
+    "nat_to": "NAT para",
+    "subtitle_outbound": "Tradução de endereços para tráfego saindo para a Internet."
   }
 }

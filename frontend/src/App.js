@@ -17,6 +17,9 @@ import Interfaces from '@/pages/Interfaces';
 import Logs from '@/pages/Logs';
 import Users from '@/pages/Users';
 import Export from '@/pages/Export';
+import Attacks from '@/pages/Attacks';
+import BlockedPublic from '@/pages/BlockedPublic';
+import BlockPageAdmin from '@/pages/BlockPageAdmin';
 
 function Protected({ children }) {
     const { user } = useAuth();
@@ -38,6 +41,7 @@ function App() {
                 <BrowserRouter>
                     <Routes>
                         <Route path="/login" element={<Login />} />
+                        <Route path="/blocked" element={<BlockedPublic />} />
                         <Route
                             path="/"
                             element={
@@ -55,11 +59,20 @@ function App() {
                             <Route path="dhcp" element={<DHCP />} />
                             <Route path="dns" element={<DNS />} />
                             <Route path="logs" element={<Logs />} />
+                            <Route path="attacks" element={<Attacks />} />
                             <Route
                                 path="users"
                                 element={
                                     <AdminOnly>
                                         <Users />
+                                    </AdminOnly>
+                                }
+                            />
+                            <Route
+                                path="block-page"
+                                element={
+                                    <AdminOnly>
+                                        <BlockPageAdmin />
                                     </AdminOnly>
                                 }
                             />

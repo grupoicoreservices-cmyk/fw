@@ -14,6 +14,8 @@ import {
     Users2,
     FileDown,
     ShieldCheck,
+    ShieldAlert,
+    ShieldOff,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -51,12 +53,16 @@ export default function Sidebar() {
         },
         {
             label: t('nav.monitoring'),
-            items: [{ to: '/logs', label: t('nav.logs'), icon: Activity }],
+            items: [
+                { to: '/logs', label: t('nav.logs'), icon: Activity },
+                { to: '/attacks', label: t('nav.attacks'), icon: ShieldAlert },
+            ],
         },
         {
             label: t('nav.administration'),
             items: [
                 ...(user?.role === 'admin' ? [{ to: '/users', label: t('nav.users'), icon: Users2 }] : []),
+                ...(user?.role === 'admin' ? [{ to: '/block-page', label: t('nav.block_page'), icon: ShieldOff }] : []),
                 { to: '/export', label: t('nav.export'), icon: FileDown },
             ],
         },
