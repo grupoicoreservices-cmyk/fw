@@ -33,10 +33,10 @@
   },
   {
     "content": "Phase 2: End-to-end testing using testing_agent_v3",
-    "status": "in_progress"
+    "status": "completed"
   },
   {
-    "content": "Phase 2: Fix issues reported by testing agent",
-    "status": "pending"
+    "content": "Phase 2: Fix issues reported by testing agent (one ObjectId fix applied)",
+    "status": "completed"
   }
 ]
