@@ -93,3 +93,28 @@ credentials.json
 *.pem
 *.key
 .credentials
+
+# Allow examples and production build env (no secrets)
+!.env.production.example
+!frontend/.env.production
+!frontend/.env.production.local
+!**/.env.example
+
+# Firewall Console specific
+/firewall-console-deploy.tar.gz
+/var/lib/firewall-console/
+/app/firewall-console-deploy.tar.gz
+backups/
+current.nft
+
+# Dev/preview artifacts (Emergent preview environment)
+/plan.md
+/design_guidelines.md
+/backend_test.py
+/backend_test_output.log
+/test_reports/
+/memory/
+/.emergent/
+/.ruff_cache/
+/.gitconfig
+/yarn.lock
