@@ -4,6 +4,7 @@ import '@/App.css';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
+import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
 import AppShell from '@/components/layout/AppShell';
 import Login from '@/pages/Login';
 import Dashboard from '@/pages/Dashboard';
@@ -34,9 +35,26 @@ function AdminOnly({ children }) {
     return children;
 }
 
+function ThemedToaster() {
+    const { isDark } = useTheme();
+    return (
+        <Toaster
+            position="top-right"
+            theme={isDark ? 'dark' : 'light'}
+            toastOptions={{
+                style: {
+                    background: 'hsl(var(--card))',
+                    border: '1px solid hsl(var(--border))',
+                    color: 'hsl(var(--foreground))',
+                },
+            }}
+        />
+    );
+}
+
 function App() {
     return (
-        <div className="dark">
+        <ThemeProvider>
             <AuthProvider>
                 <BrowserRouter>
                     <Routes>
@@ -81,19 +99,9 @@ function App() {
                         <Route path="*" element={<Navigate to="/" replace />} />
                     </Routes>
                 </BrowserRouter>
-                <Toaster
-                    position="top-right"
-                    theme="dark"
-                    toastOptions={{
-                        style: {
-                            background: 'hsl(222 44% 8%)',
-                            border: '1px solid hsl(222 22% 18%)',
-                            color: 'hsl(210 40% 98%)',
-                        },
-                    }}
-                />
+                <ThemedToaster />
             </AuthProvider>
-        </div>
+        </ThemeProvider>
     );
 }
 

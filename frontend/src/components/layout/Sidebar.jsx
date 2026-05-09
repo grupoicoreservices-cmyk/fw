@@ -101,8 +101,8 @@ export default function Sidebar() {
                                                 cn(
                                                     'group relative flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors',
                                                     isActive
-                                                        ? 'text-foreground bg-white/[0.06] before:absolute before:left-0 before:top-2 before:bottom-2 before:w-[3px] before:rounded-full before:bg-[hsl(var(--info))]'
-                                                        : 'text-muted-foreground hover:text-foreground hover:bg-white/[0.04]',
+                                                        ? 'text-foreground bg-foreground/[0.06] before:absolute before:left-0 before:top-2 before:bottom-2 before:w-[3px] before:rounded-full before:bg-[hsl(var(--info))]'
+                                                        : 'text-muted-foreground hover:text-foreground hover:bg-foreground/[0.04]',
                                                 )
                                             }
                                         >

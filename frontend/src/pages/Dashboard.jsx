@@ -217,7 +217,7 @@ export default function Dashboard() {
                                 {(recentLogs?.items || []).map((log) => (
                                     <div
                                         key={log.id}
-                                        className="flex items-start gap-3 text-xs font-mono px-2 py-1.5 rounded hover:bg-white/[0.04] border-l-[3px]"
+                                        className="flex items-start gap-3 text-xs font-mono px-2 py-1.5 rounded hover:bg-foreground/[0.04] border-l-[3px]"
                                         style={{ borderLeftColor: sevColor(log.severity) }}
                                         data-testid={`dashboard-log-${log.id}`}
                                     >

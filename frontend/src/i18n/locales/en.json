@@ -63,6 +63,9 @@
     "logout": "Logout",
     "profile": "Profile",
     "language": "Language",
+    "theme": "Theme",
+    "theme_dark": "Dark",
+    "theme_light": "Light",
     "close": "Close",
     "signed_in_as": "Signed in as",
     "insufficient_permissions": "Insufficient permissions",
@@ -277,7 +280,12 @@
       "high_traffic": "Anomalous Traffic",
       "normal": "Normal"
     },
-    "empty": "No attacks detected in this window. Great!"
+    "empty": "No attacks detected in this window. Great!",
+    "tab_aggregated": "Aggregated view",
+    "tab_live": "Live feed",
+    "live_feed_title": "Real-time attack events",
+    "live_now": "LIVE",
+    "live_feed_waiting": "Waiting for block events... Simulator emits attacks every 2s."
   },
   "block_page": {
     "title_admin": "Block Page Configuration",

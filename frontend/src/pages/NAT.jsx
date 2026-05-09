@@ -89,7 +89,7 @@ export default function NAT() {
                     </thead>
                     <tbody>
                         {inbound.map((it) => (
-                            <tr key={it.id} className={`border-b border-border/50 hover:bg-white/[0.04] ${it.enabled ? '' : 'opacity-60'}`} data-testid={`nat-inbound-row-${it.id}`}>
+                            <tr key={it.id} className={`border-b border-border/50 hover:bg-foreground/[0.04] ${it.enabled ? '' : 'opacity-60'}`} data-testid={`nat-inbound-row-${it.id}`}>
                                 <td className="py-2.5 px-3">{it.enabled ? <Badge className="bg-[hsl(var(--ok)/0.16)] text-[hsl(var(--ok))] border border-[hsl(var(--ok)/0.3)]">ON</Badge> : <Badge variant="outline">OFF</Badge>}</td>
                                 <td className="px-2 font-mono">{it.interface}</td>
                                 <td className="px-2 font-mono uppercase">{it.protocol}</td>
@@ -131,7 +131,7 @@ export default function NAT() {
                     </thead>
                     <tbody>
                         {outbound.map((it) => (
-                            <tr key={it.id} className={`border-b border-border/50 hover:bg-white/[0.04] ${it.enabled ? '' : 'opacity-60'}`} data-testid={`nat-outbound-row-${it.id}`}>
+                            <tr key={it.id} className={`border-b border-border/50 hover:bg-foreground/[0.04] ${it.enabled ? '' : 'opacity-60'}`} data-testid={`nat-outbound-row-${it.id}`}>
                                 <td className="py-2.5 px-3">{it.enabled ? <Badge className="bg-[hsl(var(--ok)/0.16)] text-[hsl(var(--ok))] border border-[hsl(var(--ok)/0.3)]">ON</Badge> : <Badge variant="outline">OFF</Badge>}</td>
                                 <td className="px-2 font-mono">{it.interface}</td>
                                 <td className="px-2 font-mono uppercase">{it.protocol}</td>
@@ -198,7 +198,7 @@ export default function NAT() {
                         <SheetDescription>{form.direction === 'outbound' ? t('nat_outbound.subtitle_outbound') : t('nat.subtitle')}</SheetDescription>
                     </SheetHeader>
                     <div className="mt-5 space-y-3">
-                        <div className="flex items-center justify-between rounded-md border border-border/70 bg-white/[0.03] px-3 py-2.5">
+                        <div className="flex items-center justify-between rounded-md border border-border/70 overlay-hairline px-3 py-2.5">
                             <Label className="text-xs uppercase tracking-wider">{t('common.enabled')}</Label>
                             <Switch checked={form.enabled} onCheckedChange={(v) => setForm((f) => ({ ...f, enabled: v }))} />
                         </div>

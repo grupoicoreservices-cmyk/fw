@@ -1,42 +1,34 @@
 [
   {
-    "content": "Phase 3: Backend - Update simulator to track attackers (hostname, country, attack patterns)",
+    "content": "Phase 4: Create ThemeContext (light/dark) + persistence",
     "status": "completed"
   },
   {
-    "content": "Phase 3: Backend - New /api/attacks router (list attackers, block, redirect)",
+    "content": "Phase 4: Update index.css with light theme variables and theme-aware utilities",
     "status": "completed"
   },
   {
-    "content": "Phase 3: Backend - Extend NAT router (outbound + auto-create MASQUERADE) + Block-page config router",
+    "content": "Phase 4: Add theme toggle (Sun/Moon) to Topbar; also on Login + BlockedPublic pages",
     "status": "completed"
   },
   {
-    "content": "Phase 3: Update i18n (PT/EN) with attack/block-page/outbound NAT strings",
+    "content": "Phase 4: Refactor hardcoded white/black overlays to theme-aware foreground/background",
     "status": "completed"
   },
   {
-    "content": "Phase 3: Frontend - Attack Analysis page with table + Block button + filters",
+    "content": "Phase 4: Add Live Feed tab to Attacks page with animated real-time event stream",
     "status": "completed"
   },
   {
-    "content": "Phase 3: Frontend - Public Block Page (/blocked) + Admin Block Page config screen",
+    "content": "Phase 4: Update i18n PT/EN with theme + live feed strings",
     "status": "completed"
   },
   {
-    "content": "Phase 3: Frontend - Update NAT page with Inbound/Outbound tabs + auto-create button",
+    "content": "Phase 4: Manual smoke test of theme toggle + live attack feed across pages",
     "status": "completed"
   },
   {
-    "content": "Phase 3: Update sidebar/routes with Attacks + Block Page menus",
-    "status": "completed"
-  },
-  {
-    "content": "Phase 3: End-to-end testing of new features via testing_agent_v3",
-    "status": "completed"
-  },
-  {
-    "content": "Phase 3: Fix issues from testing - none reported, manual smoke verified",
-    "status": "completed"
+    "content": "Phase 4: End-to-end testing via testing_agent_v3",
+    "status": "in_progress"
   }
 ]

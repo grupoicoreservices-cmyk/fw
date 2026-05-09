@@ -79,7 +79,7 @@ export default function Users() {
                             </thead>
                             <tbody>
                                 {items.map((u) => (
-                                    <tr key={u.id} className={`border-b border-border/50 hover:bg-white/[0.04] ${u.enabled ? '' : 'opacity-60'}`} data-testid={`user-row-${u.id}`}>
+                                    <tr key={u.id} className={`border-b border-border/50 hover:bg-foreground/[0.04] ${u.enabled ? '' : 'opacity-60'}`} data-testid={`user-row-${u.id}`}>
                                         <td className="py-2.5 px-3 font-mono">{u.email}{u.id === me?.id && <Badge variant="outline" className="ml-2 text-[10px]">YOU</Badge>}</td>
                                         <td className="px-2">{u.name}</td>
                                         <td className="px-2"><Badge variant="outline" className={`text-[10px] uppercase ${roleColor[u.role]}`}><Shield className="w-3 h-3 mr-1" />{u.role}</Badge></td>
@@ -116,7 +116,7 @@ export default function Users() {
                             </Select>
                         </div>
                         <div><Label className="text-xs uppercase tracking-wider text-muted-foreground">{t('users.password')} {editing && <span className="text-muted-foreground">(opcional)</span>}</Label><Input type="password" className="h-9 font-mono mt-1" value={form.password} onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))} data-testid="user-password" /></div>
-                        <div className="flex items-center justify-between rounded-md border border-border/70 bg-white/[0.03] px-3 py-2.5">
+                        <div className="flex items-center justify-between rounded-md border border-border/70 overlay-hairline px-3 py-2.5">
                             <Label className="text-xs uppercase tracking-wider">{t('common.enabled')}</Label>
                             <Switch checked={form.enabled} onCheckedChange={(v) => setForm((f) => ({ ...f, enabled: v }))} data-testid="user-enabled" />
                         </div>

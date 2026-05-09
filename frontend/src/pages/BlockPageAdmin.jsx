@@ -100,7 +100,7 @@ export default function BlockPageAdmin() {
                                 { k: 'show_reason', label: t('block_page.form.show_reason') },
                                 { k: 'reference_id_visible', label: t('block_page.form.reference_id_visible') },
                             ].map((item) => (
-                                <div key={item.k} className="flex items-center justify-between rounded-md border border-border/70 bg-white/[0.03] px-3 py-2">
+                                <div key={item.k} className="flex items-center justify-between rounded-md border border-border/70 overlay-hairline px-3 py-2">
                                     <Label className="text-xs uppercase tracking-wider">{item.label}</Label>
                                     <Switch checked={!!cfg[item.k]} onCheckedChange={(v) => setCfg({ ...cfg, [item.k]: v })} disabled={!isAdmin} data-testid={`bp-${item.k}`} />
                                 </div>

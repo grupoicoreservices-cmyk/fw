@@ -74,7 +74,7 @@ function Row({ rule, onEdit, onDelete, onToggle, canEdit, interfaces, t }) {
         <tr
             ref={setNodeRef}
             style={style}
-            className={`group border-b border-border/50 hover:bg-white/[0.04] ${rule.enabled ? '' : 'opacity-60'}`}
+            className={`group border-b border-border/50 hover:bg-foreground/[0.04] ${rule.enabled ? '' : 'opacity-60'}`}
             data-testid={`firewall-rule-row-${rule.id}`}
         >
             <td className="py-2.5 pl-2 pr-1 align-middle">
@@ -281,7 +281,7 @@ export default function FirewallRules() {
                         <SheetDescription>{t('firewall.subtitle')}</SheetDescription>
                     </SheetHeader>
                     <div className="mt-5 space-y-4">
-                        <div className="flex items-center justify-between rounded-md border border-border/70 bg-white/[0.03] px-3 py-2.5">
+                        <div className="flex items-center justify-between rounded-md border border-border/70 overlay-hairline px-3 py-2.5">
                             <div>
                                 <Label className="text-xs uppercase tracking-wider">{t('common.enabled')}</Label>
                                 <p className="text-[11px] text-muted-foreground mt-0.5">{t('firewall.subtitle')}</p>
@@ -338,7 +338,7 @@ export default function FirewallRules() {
                                 <Label className="text-xs uppercase tracking-wider text-muted-foreground">{t('common.description')}</Label>
                                 <Input value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} className="h-9" data-testid="sheet-description" />
                             </div>
-                            <div className="col-span-2 flex items-center justify-between rounded-md border border-border/70 bg-white/[0.03] px-3 py-2.5">
+                            <div className="col-span-2 flex items-center justify-between rounded-md border border-border/70 overlay-hairline px-3 py-2.5">
                                 <Label className="text-xs uppercase tracking-wider">{t('firewall.log')}</Label>
                                 <Switch checked={form.log} onCheckedChange={(v) => setForm((f) => ({ ...f, log: v }))} data-testid="sheet-log" />
                             </div>

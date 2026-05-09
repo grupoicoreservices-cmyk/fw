@@ -1,7 +1,7 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { LogOut, ChevronRight, ShieldCheck } from 'lucide-react';
+import { LogOut, ChevronRight, ShieldCheck, Sun, Moon } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -15,6 +15,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/contexts/ThemeContext';
 
 const routeTitles = {
     '/': { key: 'nav.dashboard' },
@@ -35,6 +36,7 @@ const routeTitles = {
 export default function Topbar() {
     const { t, i18n } = useTranslation();
     const { user, logout } = useAuth();
+    const { theme, toggle: toggleTheme, isDark } = useTheme();
     const location = useLocation();
 
     const current = routeTitles[location.pathname] || routeTitles['/'];
@@ -76,6 +78,17 @@ export default function Topbar() {
                 </div>
 
                 <div className="flex items-center gap-3">
+                    <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={toggleTheme}
+                        className="h-9 w-9 bg-[hsl(var(--surface-2))] border-border"
+                        data-testid="theme-toggle"
+                        title={isDark ? 'Light theme' : 'Dark theme'}
+                    >
+                        {isDark ? <Sun className="w-4 h-4 text-[hsl(var(--warn))]" /> : <Moon className="w-4 h-4 text-[hsl(var(--info))]" />}
+                    </Button>
+
                     <ToggleGroup
                         type="single"
                         value={i18n.language?.startsWith('en') ? 'en' : 'pt'}

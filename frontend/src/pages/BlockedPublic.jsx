@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ShieldOff, AlertTriangle, Mail, ExternalLink, Clock, Globe } from 'lucide-react';
+import { ShieldOff, AlertTriangle, Mail, ExternalLink, Clock, Globe, Sun, Moon } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useTheme } from '@/contexts/ThemeContext';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
 export default function BlockedPublic() {
     const { t, i18n } = useTranslation();
+    const { isDark, toggle: toggleTheme } = useTheme();
     const [data, setData] = useState(null);
     const [error, setError] = useState(null);
 
@@ -53,14 +55,25 @@ export default function BlockedPublic() {
                             <div className="text-2xl md:text-3xl font-semibold mt-1 tracking-tight">{cfg.headline || t('block_page.public.default_reason')}</div>
                         </div>
                     </div>
-                    <button
-                        type="button"
-                        onClick={() => i18n.changeLanguage(i18n.language?.startsWith('en') ? 'pt' : 'en')}
-                        className="text-[10px] uppercase tracking-wider text-muted-foreground hover:text-foreground border border-border rounded px-2 py-1 font-mono"
-                        data-testid="blocked-language-toggle"
-                    >
-                        {i18n.language?.startsWith('en') ? 'EN' : 'PT'}
-                    </button>
+                    <div className="flex items-center gap-2">
+                        <button
+                            type="button"
+                            onClick={toggleTheme}
+                            className="text-[10px] uppercase tracking-wider text-muted-foreground hover:text-foreground border border-border rounded p-1.5"
+                            data-testid="blocked-theme-toggle"
+                            aria-label="theme toggle"
+                        >
+                            {isDark ? <Sun className="w-3.5 h-3.5 text-[hsl(var(--warn))]" /> : <Moon className="w-3.5 h-3.5 text-[hsl(var(--info))]" />}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => i18n.changeLanguage(i18n.language?.startsWith('en') ? 'pt' : 'en')}
+                            className="text-[10px] uppercase tracking-wider text-muted-foreground hover:text-foreground border border-border rounded px-2 py-1 font-mono"
+                            data-testid="blocked-language-toggle"
+                        >
+                            {i18n.language?.startsWith('en') ? 'EN' : 'PT'}
+                        </button>
+                    </div>
                 </div>
 
                 <p className="mt-6 text-base text-foreground/80 leading-relaxed">

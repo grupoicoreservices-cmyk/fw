@@ -70,11 +70,11 @@ export default function DNS() {
                 <Card className="bg-[hsl(var(--surface-1))] border-border/70">
                     <CardHeader><CardTitle className="text-sm font-semibold">{t('dns.resolver')}</CardTitle></CardHeader>
                     <CardContent className="space-y-3">
-                        <div className="flex items-center justify-between rounded-md border border-border/70 bg-white/[0.03] px-3 py-2.5">
+                        <div className="flex items-center justify-between rounded-md border border-border/70 overlay-hairline px-3 py-2.5">
                             <Label className="text-xs uppercase tracking-wider">{t('common.enabled')}</Label>
                             <Switch checked={config.enabled} onCheckedChange={(v) => setConfig((c) => ({ ...c, enabled: v }))} disabled={!canEdit} />
                         </div>
-                        <div className="flex items-center justify-between rounded-md border border-border/70 bg-white/[0.03] px-3 py-2.5">
+                        <div className="flex items-center justify-between rounded-md border border-border/70 overlay-hairline px-3 py-2.5">
                             <Label className="text-xs uppercase tracking-wider">{t('dns.dnssec')}</Label>
                             <Switch checked={config.dnssec} onCheckedChange={(v) => setConfig((c) => ({ ...c, dnssec: v }))} disabled={!canEdit} />
                         </div>
@@ -104,7 +104,7 @@ export default function DNS() {
                                 </thead>
                                 <tbody>
                                     {records.map((r) => (
-                                        <tr key={r.id} className="border-b border-border/50 hover:bg-white/[0.04]" data-testid={`dns-row-${r.id}`}>
+                                        <tr key={r.id} className="border-b border-border/50 hover:bg-foreground/[0.04]" data-testid={`dns-row-${r.id}`}>
                                             <td className="py-2.5 px-3 font-mono">{r.name}</td>
                                             <td className="px-2"><Badge variant="outline" className="text-[10px]">{r.type}</Badge></td>
                                             <td className="px-2 font-mono">{r.value}</td>

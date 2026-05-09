@@ -109,7 +109,7 @@ export default function Logs() {
                             {items.map((log) => (
                                 <div
                                     key={log.id}
-                                    className="flex items-start gap-3 px-3 py-1.5 font-mono text-xs leading-5 hover:bg-white/[0.04] border-b border-border/40 border-l-[3px]"
+                                    className="flex items-start gap-3 px-3 py-1.5 font-mono text-xs leading-5 hover:bg-foreground/[0.04] border-b border-border/40 border-l-[3px]"
                                     style={{ borderLeftColor: sevColor(log.severity) }}
                                     data-testid={`log-line-${log.id}`}
                                 >

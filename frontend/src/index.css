@@ -19,6 +19,8 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-feature-settings: 'cv11', 'ss01';
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
 }
 
 code,
@@ -28,7 +30,8 @@ code,
 }
 
 @layer base {
-    :root {
+    /* DARK theme (NOC default) */
+    .dark {
         --background: 222 47% 6%;
         --foreground: 210 40% 98%;
         --card: 222 44% 8%;
@@ -62,42 +65,49 @@ code,
         --warn: 43 96% 56%;
         --bad: 0 84% 56%;
         --neutral: 215 16% 55%;
+        --grid-line: 222 22% 18%;
     }
-    .dark {
-        --background: 222 47% 6%;
-        --foreground: 210 40% 98%;
-        --card: 222 44% 8%;
-        --card-foreground: 210 40% 98%;
-        --popover: 222 44% 8%;
-        --popover-foreground: 210 40% 98%;
-        --primary: 188 92% 45%;
-        --primary-foreground: 222 47% 6%;
-        --secondary: 222 28% 14%;
-        --secondary-foreground: 210 40% 98%;
-        --muted: 222 28% 14%;
-        --muted-foreground: 215 20% 70%;
-        --accent: 160 84% 36%;
-        --accent-foreground: 222 47% 6%;
-        --destructive: 0 84% 56%;
-        --destructive-foreground: 210 40% 98%;
-        --border: 222 22% 18%;
-        --input: 222 22% 18%;
-        --ring: 188 92% 45%;
-        --chart-1: 188 92% 45%;
-        --chart-2: 160 84% 36%;
-        --chart-3: 43 96% 56%;
-        --chart-4: 0 84% 56%;
-        --chart-5: 215 20% 70%;
-    }
-}
 
-@layer base {
+    /* LIGHT theme (corporate dashboard) */
+    .light {
+        --background: 210 40% 98%;
+        --foreground: 222 47% 11%;
+        --card: 0 0% 100%;
+        --card-foreground: 222 47% 11%;
+        --popover: 0 0% 100%;
+        --popover-foreground: 222 47% 11%;
+        --primary: 188 92% 38%;
+        --primary-foreground: 0 0% 100%;
+        --secondary: 220 14% 95%;
+        --secondary-foreground: 222 47% 11%;
+        --muted: 220 14% 95%;
+        --muted-foreground: 215 16% 42%;
+        --accent: 160 84% 30%;
+        --accent-foreground: 0 0% 100%;
+        --destructive: 0 75% 48%;
+        --destructive-foreground: 0 0% 100%;
+        --border: 220 13% 88%;
+        --input: 220 13% 88%;
+        --ring: 188 92% 38%;
+        --radius: 0.75rem;
+        --chart-1: 188 92% 38%;
+        --chart-2: 160 84% 30%;
+        --chart-3: 38 92% 45%;
+        --chart-4: 0 75% 48%;
+        --chart-5: 215 16% 42%;
+        --surface-1: 0 0% 100%;
+        --surface-2: 210 40% 96%;
+        --surface-3: 220 14% 91%;
+        --ok: 160 84% 30%;
+        --info: 188 92% 38%;
+        --warn: 38 92% 45%;
+        --bad: 0 75% 48%;
+        --neutral: 215 16% 42%;
+        --grid-line: 220 13% 90%;
+    }
+
     * {
         @apply border-border;
-    }
-    body {
-        background-color: hsl(var(--background));
-        color: hsl(var(--foreground));
     }
     h1,
     h2,
@@ -113,8 +123,8 @@ code,
 .bg-soc {
     background-color: hsl(var(--background));
     background-image:
-        linear-gradient(to right, hsl(222 22% 18% / 0.35) 1px, transparent 1px),
-        linear-gradient(to bottom, hsl(222 22% 18% / 0.35) 1px, transparent 1px);
+        linear-gradient(to right, hsl(var(--grid-line) / 0.45) 1px, transparent 1px),
+        linear-gradient(to bottom, hsl(var(--grid-line) / 0.45) 1px, transparent 1px);
     background-size: 48px 48px;
 }
 
@@ -122,20 +132,20 @@ code,
     background-image:
         radial-gradient(
             1200px circle at 18% -10%,
-            hsl(188 92% 45% / 0.18),
+            hsl(var(--info) / 0.18),
             transparent 55%
         ),
         radial-gradient(
             900px circle at 82% 0%,
-            hsl(160 84% 36% / 0.14),
+            hsl(var(--accent) / 0.14),
             transparent 50%
         );
 }
 
 .glass {
-    background: hsl(222 44% 8% / 0.72);
+    background: hsl(var(--surface-1) / 0.85);
     backdrop-filter: blur(8px);
-    border: 1px solid hsl(188 92% 45% / 0.14);
+    border: 1px solid hsl(var(--info) / 0.18);
 }
 
 .scanline {
@@ -148,7 +158,7 @@ code,
     background: linear-gradient(
         180deg,
         transparent,
-        hsl(188 92% 45% / 0.04),
+        hsl(var(--info) / 0.04),
         transparent
     );
     background-size: 100% 6px;
@@ -156,7 +166,17 @@ code,
     opacity: 0.4;
 }
 
-/* nicer scrollbar in dark */
+/* Theme-aware overlays for hover/active backgrounds */
+.dark .hover-soft:hover { background-color: hsl(0 0% 100% / 0.04); }
+.light .hover-soft:hover { background-color: hsl(222 47% 11% / 0.04); }
+.dark .row-hover:hover { background-color: hsl(0 0% 100% / 0.04); }
+.light .row-hover:hover { background-color: hsl(222 47% 11% / 0.035); }
+
+/* Subtle white/black overlays converted to theme-aware */
+.dark .overlay-hairline { background-color: hsl(0 0% 100% / 0.03); }
+.light .overlay-hairline { background-color: hsl(222 47% 11% / 0.025); }
+
+/* Scrollbar */
 *::-webkit-scrollbar {
     width: 10px;
     height: 10px;
@@ -175,10 +195,10 @@ code,
 @keyframes pulse-ring {
     0%,
     100% {
-        box-shadow: 0 0 0 0 hsl(188 92% 45% / 0);
+        box-shadow: 0 0 0 0 hsl(var(--info) / 0);
     }
     50% {
-        box-shadow: 0 0 0 6px hsl(188 92% 45% / 0.18);
+        box-shadow: 0 0 0 6px hsl(var(--info) / 0.18);
     }
 }
 .live-dot {
@@ -189,3 +209,9 @@ code,
     box-shadow: 0 0 0 0 hsl(var(--ok) / 0.4);
     animation: pulse-ring 1.6s ease-in-out infinite;
 }
+
+@keyframes new-attack-flash {
+    0% { background-color: hsl(var(--bad) / 0.22); }
+    100% { background-color: transparent; }
+}
+.new-attack { animation: new-attack-flash 1.4s ease-out 1; }

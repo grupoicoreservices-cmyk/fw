@@ -63,6 +63,9 @@
     "logout": "Sair",
     "profile": "Perfil",
     "language": "Idioma",
+    "theme": "Tema",
+    "theme_dark": "Escuro",
+    "theme_light": "Claro",
     "close": "Fechar",
     "signed_in_as": "Conectado como",
     "insufficient_permissions": "Permissões insuficientes",
@@ -277,7 +280,12 @@
       "high_traffic": "Tráfego Anômalo",
       "normal": "Normal"
     },
-    "empty": "Nenhum ataque detectado nesta janela. Ótimo!"
+    "empty": "Nenhum ataque detectado nesta janela. Ótimo!",
+    "tab_aggregated": "Visão agregada",
+    "tab_live": "Live feed",
+    "live_feed_title": "Eventos de ataque em tempo real",
+    "live_now": "AO VIVO",
+    "live_feed_waiting": "Aguardando eventos de bloqueio... A simulação gera ataques a cada 2s."
   },
   "block_page": {
     "title_admin": "Configuração da Página de Bloqueio",
