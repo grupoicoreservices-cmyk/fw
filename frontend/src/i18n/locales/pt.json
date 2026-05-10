@@ -201,7 +201,10 @@
     "mtu": "MTU",
     "rx": "RX",
     "tx": "TX",
-    "new": "Nova interface"
+    "new": "Nova interface",
+    "discover": "Auto-detectar",
+    "discover_success": "{{count}} interface(s) detectada(s) e adicionada(s)",
+    "discover_none": "Nenhuma interface nova encontrada (todas já cadastradas)"
   },
   "logs": {
     "title": "Logs em tempo real",

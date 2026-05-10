@@ -1,46 +1,30 @@
 [
   {
-    "content": "Phase 5 PROD: Backend - system_apply.py (nftables apply/rollback/backup)",
+    "content": "Backend: adicionar psutil + module host_metrics.py (CPU/RAM/conexões/RX/TX reais)",
     "status": "completed"
   },
   {
-    "content": "Phase 5 PROD: Backend - apply.py router + refactor export.py to expose generator helpers",
+    "content": "Backend: simulator.py usa métricas reais quando disponíveis (fallback p/ simulação)",
     "status": "completed"
   },
   {
-    "content": "Phase 5 PROD: Update seed.py to respect SEED_DEMO_DATA + ADMIN_EMAIL/ADMIN_PASSWORD env vars",
+    "content": "Backend: novo endpoint POST /api/interfaces/discover (auto-detecta interfaces)",
     "status": "completed"
   },
   {
-    "content": "Phase 5 PROD: Frontend - Add Apply/Rollback buttons + status to Export page; update i18n",
+    "content": "Backend: seed.py auto-descobre interfaces no 1º boot em produção (SEED_DEMO_DATA=false)",
     "status": "completed"
   },
   {
-    "content": "Phase 5 PROD: Dockerfiles (backend with nftables binary, frontend multi-stage with nginx)",
+    "content": "Frontend: botão 'Auto-detectar interfaces' (admin) na página Interfaces",
     "status": "completed"
   },
   {
-    "content": "Phase 5 PROD: docker-compose.yml (host network, NET_ADMIN cap, mongo volume)",
+    "content": "Quick fix imediato para o usuário (add interface manual via UI agora)",
     "status": "completed"
   },
   {
-    "content": "Phase 5 PROD: .env.production.example, .dockerignore files",
-    "status": "completed"
-  },
-  {
-    "content": "Phase 5 PROD: install.sh (one-shot installer for Ubuntu 24)",
-    "status": "completed"
-  },
-  {
-    "content": "Phase 5 PROD: DEPLOY.md (PT-BR deployment guide with safety notes)",
-    "status": "completed"
-  },
-  {
-    "content": "Phase 5 PROD: Verify preview still works after backend refactor (export still returns plain text)",
-    "status": "completed"
-  },
-  {
-    "content": "Phase 5 PROD: Generate deployment tarball firewall-console-deploy.tar.gz",
+    "content": "Comandos de update para o servidor (git pull + rebuild)",
     "status": "completed"
   }
 ]

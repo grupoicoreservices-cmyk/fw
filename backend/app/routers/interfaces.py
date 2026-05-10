@@ -4,6 +4,7 @@ from typing import Optional
 from app.db import get_db
 from app.security import get_current_user, require_role
 from app.utils import gen_id, now_iso
+from app.host_metrics import discover_interfaces, enabled as host_metrics_enabled
 
 router = APIRouter(prefix='/interfaces', tags=['interfaces'])
 
@@ -65,3 +66,38 @@ async def delete_interface(iface_id: str, user: dict = Depends(require_role('adm
     if res.deleted_count == 0:
         raise HTTPException(status_code=404, detail='Interface não encontrada')
     return {'ok': True}
+
+
+@router.post('/discover')
+async def discover(user: dict = Depends(require_role('admin'))):
+    """Auto-detect host network interfaces via psutil and add new ones to the DB.
+
+    Returns the list of newly added interfaces and the total count after discovery.
+    Existing interfaces (matched by 'device') are NOT overwritten - only missing ones
+    are added. Use this after deploying in production to populate the Interfaces page
+    with the real WAN/LAN of the server.
+    """
+    if not host_metrics_enabled():
+        raise HTTPException(status_code=400, detail='Auto-detec\u00e7\u00e3o desabilitada (HOST_METRICS_REAL=false ou psutil ausente)')
+    db = get_db()
+    detected = discover_interfaces()
+    if not detected:
+        return {'detected': [], 'added': [], 'count': 0, 'note': 'Nenhuma interface detectada no host (psutil retornou vazio)'}
+    added = []
+    for d in detected:
+        existing = await db.interfaces.find_one({'device': d['device']})
+        if existing:
+            continue
+        doc = {
+            **d,
+            'id': gen_id(),
+            'created_at': now_iso(),
+            'rx_bytes': 0,
+            'tx_bytes': 0,
+            'rx_mbps': 0,
+            'tx_mbps': 0,
+        }
+        await db.interfaces.insert_one(doc)
+        doc.pop('_id', None)
+        added.append(doc)
+    return {'detected': len(detected), 'added': added, 'count': len(added)}

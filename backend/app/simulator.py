@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from typing import Any, Dict, List
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from app.utils import gen_id, now_iso
+from app.host_metrics import enabled as real_metrics_enabled, get_real_metrics, get_interface_traffic
 
 # Attack templates with severity + attack_type metadata
 LOG_TEMPLATES = [
@@ -87,6 +88,10 @@ class Simulator:
         self._connections = 280
         self._blocked_total = 0
         self._allowed_total = 0
+        # For real-metric delta calculations
+        self._last_rx_bytes = None
+        self._last_tx_bytes = None
+        self._last_iface_bytes: Dict[str, Dict[str, int]] = {}
 
     async def run_forever(self) -> None:
         try:
@@ -97,20 +102,43 @@ class Simulator:
             return
 
     async def tick(self) -> None:
-        # System metrics with smooth random walk
-        self._cpu = max(4.0, min(95.0, self._cpu + random.uniform(-3.0, 3.5)))
-        self._ram = max(20.0, min(90.0, self._ram + random.uniform(-1.5, 1.8)))
-        self._connections = max(40, min(2000, self._connections + random.randint(-25, 30)))
+        # Try real metrics first
+        real = get_real_metrics()
+        use_real = bool(real and 'cpu' in real)
 
-        rx = max(0.5, self._traffic_baseline['rx_mbps'] + random.uniform(-3, 6))
-        tx = max(0.2, self._traffic_baseline['tx_mbps'] + random.uniform(-2, 4))
+        if use_real:
+            # Real CPU/RAM/connections from psutil
+            self._cpu = real['cpu']
+            self._ram = real['ram']
+            self._connections = real['connections']
+            # Compute Mbps from byte deltas (2s tick)
+            rx_bytes_total = real['rx_bytes_total']
+            tx_bytes_total = real['tx_bytes_total']
+            if self._last_rx_bytes is None:
+                rx = 0.0
+                tx = 0.0
+            else:
+                dt = 2.0
+                rx = max(0.0, (rx_bytes_total - self._last_rx_bytes) * 8 / 1_000_000 / dt)
+                tx = max(0.0, (tx_bytes_total - self._last_tx_bytes) * 8 / 1_000_000 / dt)
+            self._last_rx_bytes = rx_bytes_total
+            self._last_tx_bytes = tx_bytes_total
+            blocked = 0  # No blocked counter in real mode (would come from nft counter rules)
+            allowed = 0
+        else:
+            # Simulated metrics (random walk)
+            self._cpu = max(4.0, min(95.0, self._cpu + random.uniform(-3.0, 3.5)))
+            self._ram = max(20.0, min(90.0, self._ram + random.uniform(-1.5, 1.8)))
+            self._connections = max(40, min(2000, self._connections + random.randint(-25, 30)))
 
-        if random.random() < 0.05:
-            rx *= random.uniform(2, 4)
-            tx *= random.uniform(1.5, 3)
+            rx = max(0.5, self._traffic_baseline['rx_mbps'] + random.uniform(-3, 6))
+            tx = max(0.2, self._traffic_baseline['tx_mbps'] + random.uniform(-2, 4))
+            if random.random() < 0.05:
+                rx *= random.uniform(2, 4)
+                tx *= random.uniform(1.5, 3)
+            blocked = random.randint(0, 12)
+            allowed = random.randint(50, 300)
 
-        blocked = random.randint(0, 12)
-        allowed = random.randint(50, 300)
         self._blocked_total += blocked
         self._allowed_total += allowed
 
@@ -126,6 +154,7 @@ class Simulator:
             'allowed_per_tick': allowed,
             'blocked_total': self._blocked_total,
             'allowed_total': self._allowed_total,
+            'source': 'real' if use_real else 'simulated',
         }
         await self.db.metrics_samples.insert_one(sample)
         count = await self.db.metrics_samples.count_documents({})
@@ -136,7 +165,17 @@ class Simulator:
             if old_ids:
                 await self.db.metrics_samples.delete_many({'_id': {'$in': old_ids}})
 
-        # Generate logs (mix of normal + attacker patterns)
+        # Generate logs only in simulation mode (real-mode logs come from kernel/nft monitor)
+        if not use_real:
+            await self._generate_simulated_logs()
+
+        # Update interface counters
+        if use_real:
+            await self._update_real_interface_counters()
+        else:
+            await self._update_simulated_interface_counters(rx, tx)
+
+    async def _generate_simulated_logs(self) -> None:
         n_logs = random.randint(3, 7)
         for _ in range(n_logs):
             severity, action, attack_type, template = random.choice(LOG_TEMPLATES)
@@ -144,19 +183,15 @@ class Simulator:
             src_info = pick_src(blocking)
             dst_info = pick_dst(src_info.get('country', ''))
 
-            # If src is a known attacker, prefer their profile attack type for blocks
             if blocking and 'profile' in src_info and random.random() < 0.7:
                 profile = src_info['profile']
-                # Find a matching template
                 matching = [tpl for tpl in LOG_TEMPLATES if tpl[2] == profile and tpl[1] == 'block']
                 if matching:
                     severity, action, attack_type, template = random.choice(matching)
 
-            # Skip if rule is disabled (check for active firewall rule on this attacker)
             if blocking:
                 blocked_alias = await self.db.aliases.find_one({'name': 'BLOCKED_ATTACKERS'})
                 if blocked_alias and src_info['ip'] in (blocked_alias.get('addresses') or []):
-                    # Already blocked, simulate that this is the rule kicking in (still log it)
                     pass
 
             data = {
@@ -196,7 +231,6 @@ class Simulator:
             }
             await self.db.logs.insert_one(log)
 
-        # Trim logs (keep last 800 to give richer attack history)
         log_count = await self.db.logs.count_documents({})
         if log_count > 1000:
             extra = log_count - 800
@@ -205,7 +239,7 @@ class Simulator:
             if old_ids:
                 await self.db.logs.delete_many({'_id': {'$in': old_ids}})
 
-        # Update interface counters (simulated)
+    async def _update_simulated_interface_counters(self, rx: float, tx: float) -> None:
         async for iface in self.db.interfaces.find({'enabled': True}):
             rx_bytes = int(rx * 125000 * random.uniform(0.7, 1.3))
             tx_bytes = int(tx * 125000 * random.uniform(0.7, 1.3))
@@ -224,3 +258,35 @@ class Simulator:
             {'enabled': False},
             {'$set': {'status': 'down', 'rx_mbps': 0, 'tx_mbps': 0, 'updated_at': now_iso()}},
         )
+
+    async def _update_real_interface_counters(self) -> None:
+        """Update each DB interface using REAL byte counters from the host."""
+        traffic = get_interface_traffic()
+        if not traffic:
+            return
+        async for iface in self.db.interfaces.find({}):
+            dev = iface.get('device') or iface.get('name', '').lower()
+            key = (iface.get('name') or dev or '').upper()
+            counters = traffic.get(key) or traffic.get(dev.upper()) or {}
+            rx_b = counters.get('rx_bytes', 0)
+            tx_b = counters.get('tx_bytes', 0)
+            # Compute mbps from delta
+            last = self._last_iface_bytes.get(iface['id'], {})
+            if last:
+                dt = 2.0
+                rx_mbps = max(0.0, (rx_b - last.get('rx', 0)) * 8 / 1_000_000 / dt)
+                tx_mbps = max(0.0, (tx_b - last.get('tx', 0)) * 8 / 1_000_000 / dt)
+            else:
+                rx_mbps = 0.0
+                tx_mbps = 0.0
+            self._last_iface_bytes[iface['id']] = {'rx': rx_b, 'tx': tx_b}
+
+            update = {
+                'rx_mbps': round(rx_mbps, 2),
+                'tx_mbps': round(tx_mbps, 2),
+                'rx_bytes': rx_b,
+                'tx_bytes': tx_b,
+                'status': 'up' if iface.get('enabled', True) and counters else 'down',
+                'updated_at': now_iso(),
+            }
+            await self.db.interfaces.update_one({'id': iface['id']}, {'$set': update})

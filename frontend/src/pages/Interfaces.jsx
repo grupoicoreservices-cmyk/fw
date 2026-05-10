@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Network, ArrowDownToLine, ArrowUpFromLine, Power, PowerOff } from 'lucide-react';
+import { Network, ArrowDownToLine, ArrowUpFromLine, Power, PowerOff, Radar } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -39,9 +39,34 @@ export default function Interfaces() {
         } catch (e) { toast.error(e?.response?.data?.detail || t('common.error')); }
     };
 
+    const discover = async () => {
+        try {
+            const { data } = await api.post('/interfaces/discover');
+            if (data.count === 0) {
+                toast.info(t('interfaces.discover_none'));
+            } else {
+                toast.success(t('interfaces.discover_success', { count: data.count }));
+            }
+        } catch (e) {
+            toast.error(e?.response?.data?.detail || t('common.error'));
+        }
+    };
+
     return (
         <div data-testid="interfaces-page">
-            <PageHeader icon={Network} title={t('interfaces.title')} subtitle={t('interfaces.subtitle')} />
+            <PageHeader
+                icon={Network}
+                title={t('interfaces.title')}
+                subtitle={t('interfaces.subtitle')}
+                action={
+                    isAdmin && (
+                        <Button onClick={discover} className="gap-2 bg-[hsl(var(--info))] hover:bg-[hsl(var(--info))]/90 text-[hsl(var(--primary-foreground))]" data-testid="interfaces-discover-button">
+                            <Radar className="w-4 h-4" />
+                            {t('interfaces.discover')}
+                        </Button>
+                    )
+                }
+            />
 
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                 {items.map((it) => {

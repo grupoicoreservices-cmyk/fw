@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from app.security import hash_password
 from app.utils import gen_id, now_iso
+from app.host_metrics import discover_interfaces, enabled as host_metrics_enabled
 
 SEED_DEMO_DATA = os.environ.get('SEED_DEMO_DATA', 'true').lower() in ('1', 'true', 'yes', 'on')
 ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL', 'admin@firewall.local').lower()
@@ -26,7 +27,20 @@ async def seed_initial_data(db: AsyncIOMotorDatabase) -> None:
         })
 
     if not SEED_DEMO_DATA:
-        # Production: only the admin user is seeded; no demo data
+        # Production: auto-discover real host interfaces if collection is empty
+        if host_metrics_enabled() and await db.interfaces.count_documents({}) == 0:
+            detected = discover_interfaces()
+            for d in detected:
+                doc = {
+                    **d,
+                    'id': gen_id(),
+                    'created_at': now_iso(),
+                    'rx_bytes': 0,
+                    'tx_bytes': 0,
+                    'rx_mbps': 0,
+                    'tx_mbps': 0,
+                }
+                await db.interfaces.insert_one(doc)
         return
 
     if not await db.users.find_one({'email': 'operator@firewall.local'}):
