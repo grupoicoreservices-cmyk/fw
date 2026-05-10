@@ -33,6 +33,7 @@
     "attacks": "Análise de Ataques",
     "users": "Usuários",
     "block_page": "Página de Bloqueio",
+    "url_filter": "Filtro de URLs",
     "export": "Exportar"
   },
   "common": {
@@ -204,7 +205,33 @@
     "new": "Nova interface",
     "discover": "Auto-detectar",
     "discover_success": "{{count}} interface(s) detectada(s) e adicionada(s)",
-    "discover_none": "Nenhuma interface nova encontrada (todas já cadastradas)"
+    "discover_none": "Nenhuma interface nova encontrada (todas já cadastradas)",
+    "connection_type": "Tipo de conexão",
+    "dns_servers": "Servidores DNS",
+    "pppoe_username": "PPPoE Usuário",
+    "pppoe_password": "PPPoE Senha",
+    "pppoe_service": "Service-name",
+    "service": "Serviço",
+    "dhcp_hint": "DHCP: o IP/gateway/DNS serão obtidos automaticamente do servidor DHCP da rede.",
+    "pppoe_hint": "PPPoE será aplicado via Netplan (renderer networkd). MTU automático: 1492.",
+    "view_netplan": "Ver Netplan",
+    "netplan_title": "Netplan YAML gerado",
+    "netplan_subtitle": "Aplique manualmente no servidor com sudo netplan apply.",
+    "netplan_copy": "Copiar YAML",
+    "netplan_download": "Baixar arquivo",
+    "netplan_copied": "Conteúdo copiado!"
+  },
+  "url_filter": {
+    "title": "Filtro de URLs",
+    "subtitle": "Bloqueie ou redirecione domínios resolvendo-os para IPs e aplicando ao firewall.",
+    "new": "Novo filtro",
+    "domains": "Domínios",
+    "domains_hint": "Um domínio por linha (ex.: facebook.com). Os domínios são resolvidos para IPs e usados nas regras de firewall.",
+    "action": "Ação",
+    "source": "Origem",
+    "resolve_all": "Re-resolver todos",
+    "empty_title": "Nenhum filtro de URL configurado",
+    "empty_hint": "Crie filtros para bloquear domínios específicos por IP — ideal para redes sociais, streaming ou sites maliciosos."
   },
   "logs": {
     "title": "Logs em tempo real",

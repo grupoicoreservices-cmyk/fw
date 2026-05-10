@@ -30,6 +30,7 @@ async def generate_nftables(db) -> str:
     rules = await db.firewall_rules.find({'enabled': True}, {'_id': 0}).sort('order', 1).to_list(2000)
     nat = await db.nat_rules.find({'enabled': True}, {'_id': 0}).to_list(500)
     interfaces = await db.interfaces.find({'enabled': True}, {'_id': 0}).to_list(50)
+    url_filters = await db.url_filters.find({'enabled': True}, {'_id': 0}).to_list(500)
 
     nat_inbound = [n for n in nat if n.get('direction', 'inbound') == 'inbound']
     nat_outbound = [n for n in nat if n.get('direction') == 'outbound']
@@ -73,6 +74,23 @@ async def generate_nftables(db) -> str:
     lines.append('    chain forward {')
     lines.append('        type filter hook forward priority 0; policy drop;')
     lines.append('        ct state established,related accept')
+    # URL filter: per-source block rules
+    if url_filters:
+        lines.append('        # ---- URL Filter (sites bloqueados por origem) ----')
+        for f in url_filters:
+            ips = f.get('resolved_ips') or []
+            if not ips:
+                continue
+            src = await _resolve_alias(db, f.get('source', 'any'))
+            domains_csv = ', '.join((f.get('domains') or [])[:5])
+            comment = f.get('name', '') + (f' [{domains_csv}]' if domains_csv else '')
+            target = 'drop' if f.get('action') == 'block' else 'reject'
+            lines.append(f'        # {comment}')
+            ips_block = ', '.join(ips)
+            if src and src != 'any':
+                lines.append(f'        ip saddr {{ {src} }} ip daddr {{ {ips_block} }} log prefix "[URL-FILTER] " {target}')
+            else:
+                lines.append(f'        ip daddr {{ {ips_block} }} log prefix "[URL-FILTER] " {target}')
     lines.append('    }')
     lines.append('    chain output {')
     lines.append('        type filter hook output priority 0; policy accept;')

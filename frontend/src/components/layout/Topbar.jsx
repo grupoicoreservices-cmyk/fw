@@ -1,7 +1,7 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { LogOut, ChevronRight, ShieldCheck, Sun, Moon } from 'lucide-react';
+import { LogOut, ChevronRight, ShieldCheck } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -15,7 +15,6 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
-import { useTheme } from '@/contexts/ThemeContext';
 
 const routeTitles = {
     '/': { key: 'nav.dashboard' },
@@ -31,12 +30,12 @@ const routeTitles = {
     '/users': { key: 'nav.users' },
     '/block-page': { key: 'nav.block_page' },
     '/export': { key: 'nav.export' },
+    '/url-filter': { key: 'nav.url_filter' },
 };
 
 export default function Topbar() {
     const { t, i18n } = useTranslation();
     const { user, logout } = useAuth();
-    const { theme, toggle: toggleTheme, isDark } = useTheme();
     const location = useLocation();
 
     const current = routeTitles[location.pathname] || routeTitles['/'];
@@ -56,74 +55,81 @@ export default function Topbar() {
     };
 
     const roleColor = {
-        admin: 'bg-[hsl(var(--bad)/0.16)] text-[hsl(var(--bad))] border-[hsl(var(--bad)/0.3)]',
-        operator: 'bg-[hsl(var(--warn)/0.16)] text-[hsl(var(--warn))] border-[hsl(var(--warn)/0.3)]',
-        viewer: 'bg-[hsl(var(--neutral)/0.16)] text-muted-foreground border-border',
+        admin: 'bg-[hsl(var(--bad)/0.10)] text-[hsl(var(--bad))] border-[hsl(var(--bad)/0.3)]',
+        operator: 'bg-[hsl(var(--warn)/0.18)] text-[hsl(var(--warn))] border-[hsl(var(--warn)/0.4)]',
+        viewer: 'bg-[hsl(var(--neutral)/0.10)] text-muted-foreground border-border',
     };
 
     return (
-        <header className="h-16 border-b border-border/70 bg-[hsl(var(--surface-1))]/80 backdrop-blur sticky top-0 z-30" data-testid="app-topbar">
+        <header
+            className="h-16 sticky top-0 z-30"
+            style={{
+                backgroundColor: 'hsl(var(--card))',
+                borderBottom: '1px solid hsl(var(--border))',
+            }}
+            data-testid="app-topbar"
+        >
             <div className="h-full flex items-center justify-between gap-4 px-4 md:px-8">
                 <div className="flex items-center gap-3 min-w-0">
-                    <div className="md:hidden w-9 h-9 rounded-lg bg-[hsl(var(--info))]/15 border border-[hsl(var(--info))]/30 flex items-center justify-center">
-                        <ShieldCheck className="w-5 h-5 text-[hsl(var(--info))]" />
+                    <div
+                        className="md:hidden w-9 h-9 rounded-lg flex items-center justify-center"
+                        style={{ backgroundColor: 'hsl(var(--primary))' }}
+                    >
+                        <ShieldCheck className="w-5 h-5 text-white" />
                     </div>
-                    <div className="flex items-center text-xs text-muted-foreground gap-1">
-                        <span className="font-mono uppercase tracking-wider">Console</span>
+                    <div className="flex items-center text-xs gap-1.5 text-muted-foreground">
+                        <span className="font-medium uppercase tracking-wider text-[11px]">Console</span>
                         <ChevronRight className="w-3.5 h-3.5" />
-                        <span className="text-foreground font-medium" data-testid="topbar-page-title">
+                        <span className="text-foreground font-semibold text-sm" data-testid="topbar-page-title">
                             {t(current.key)}
                         </span>
                     </div>
                 </div>
 
                 <div className="flex items-center gap-3">
-                    <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={toggleTheme}
-                        className="h-9 w-9 bg-[hsl(var(--surface-2))] border-border"
-                        data-testid="theme-toggle"
-                        title={isDark ? 'Light theme' : 'Dark theme'}
-                    >
-                        {isDark ? <Sun className="w-4 h-4 text-[hsl(var(--warn))]" /> : <Moon className="w-4 h-4 text-[hsl(var(--info))]" />}
-                    </Button>
-
                     <ToggleGroup
                         type="single"
                         value={i18n.language?.startsWith('en') ? 'en' : 'pt'}
                         onValueChange={changeLang}
-                        className="bg-[hsl(var(--surface-2))] border border-border rounded-md p-0.5"
+                        className="bg-secondary border border-border rounded-md p-0.5"
                         data-testid="language-toggle"
                     >
-                        <ToggleGroupItem value="pt" className="px-2.5 h-7 text-xs data-[state=on]:bg-[hsl(var(--info))]/20 data-[state=on]:text-[hsl(var(--info))]" data-testid="language-pt">
+                        <ToggleGroupItem
+                            value="pt"
+                            className="px-2.5 h-7 text-xs data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+                            data-testid="language-pt"
+                        >
                             PT
                         </ToggleGroupItem>
-                        <ToggleGroupItem value="en" className="px-2.5 h-7 text-xs data-[state=on]:bg-[hsl(var(--info))]/20 data-[state=on]:text-[hsl(var(--info))]" data-testid="language-en">
+                        <ToggleGroupItem
+                            value="en"
+                            className="px-2.5 h-7 text-xs data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+                            data-testid="language-en"
+                        >
                             EN
                         </ToggleGroupItem>
                     </ToggleGroup>
 
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="gap-2 px-2 h-9" data-testid="user-menu">
+                            <Button variant="ghost" className="gap-2 px-2 h-9 hover:bg-secondary" data-testid="user-menu">
                                 <Avatar className="w-7 h-7">
-                                    <AvatarFallback className="text-[10px] bg-[hsl(var(--info))]/20 text-[hsl(var(--info))]">
+                                    <AvatarFallback className="text-[10px] bg-primary text-primary-foreground font-semibold">
                                         {initials}
                                     </AvatarFallback>
                                 </Avatar>
                                 <div className="hidden md:flex flex-col items-start leading-tight">
-                                    <span className="text-xs font-medium">{user?.name}</span>
-                                    <span className="text-[10px] text-muted-foreground font-mono">{user?.email}</span>
+                                    <span className="text-xs font-semibold">{user?.name}</span>
+                                    <span className="text-[10px] text-muted-foreground">{user?.email}</span>
                                 </div>
-                                <Badge variant="outline" className={`hidden md:inline-flex ml-1 text-[10px] uppercase ${roleColor[user?.role] || ''}`}>
+                                <Badge variant="outline" className={`hidden md:inline-flex ml-1 text-[10px] uppercase font-semibold ${roleColor[user?.role] || ''}`}>
                                     {user?.role}
                                 </Badge>
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-56">
                             <DropdownMenuLabel className="text-xs">
-                                <div className="text-muted-foreground text-[10px] font-mono uppercase tracking-wider">{t('common.signed_in_as')}</div>
+                                <div className="text-muted-foreground text-[10px] uppercase tracking-wider">{t('common.signed_in_as')}</div>
                                 <div className="truncate font-medium">{user?.email}</div>
                             </DropdownMenuLabel>
                             <DropdownMenuSeparator />

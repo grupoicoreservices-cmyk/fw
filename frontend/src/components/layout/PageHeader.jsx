@@ -23,7 +23,7 @@ export function PageHeader({ icon: Icon, title, subtitle, action, testId }) {
 
 export function SectionCard({ children, className }) {
     return (
-        <Card className={cn('bg-[hsl(var(--surface-1))] border-border/70 shadow-[0_10px_30px_hsl(0_0%_0%/0.35)]', className)}>
+        <Card className={cn('bg-card border-border', className)}>
             <CardContent className="p-0">{children}</CardContent>
         </Card>
     );

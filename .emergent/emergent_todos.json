@@ -1,30 +1,38 @@
 [
   {
-    "content": "Backend: adicionar psutil + module host_metrics.py (CPU/RAM/conexões/RX/TX reais)",
+    "content": "5.1 Tema: trocar fonte para Open Sans (index.html + index.css)",
     "status": "completed"
   },
   {
-    "content": "Backend: simulator.py usa métricas reais quando disponíveis (fallback p/ simulação)",
+    "content": "5.1 Tema: refatorar tokens (light fixo, sidebar sempre dark, primary azul)",
     "status": "completed"
   },
   {
-    "content": "Backend: novo endpoint POST /api/interfaces/discover (auto-detecta interfaces)",
+    "content": "5.1 Tema: remover toggle dark/light do Topbar e adaptar ThemeContext",
     "status": "completed"
   },
   {
-    "content": "Backend: seed.py auto-descobre interfaces no 1º boot em produção (SEED_DEMO_DATA=false)",
+    "content": "5.1 Tema: ajustar Sidebar/Topbar/AppShell para estilo corporate clean",
     "status": "completed"
   },
   {
-    "content": "Frontend: botão 'Auto-detectar interfaces' (admin) na página Interfaces",
+    "content": "5.2 URL Filter: criar pages/URLFilter.jsx (CRUD + resolve)",
     "status": "completed"
   },
   {
-    "content": "Quick fix imediato para o usuário (add interface manual via UI agora)",
+    "content": "5.2 URL Filter: adicionar rota App.js + item no Sidebar + i18n keys",
     "status": "completed"
   },
   {
-    "content": "Comandos de update para o servidor (git pull + rebuild)",
+    "content": "5.3 Interfaces: adicionar botão e modal 'Ver Netplan YAML'",
     "status": "completed"
+  },
+  {
+    "content": "Verificar lint/build e screenshot final",
+    "status": "completed"
+  },
+  {
+    "content": "Rodar testing_agent_v3 (frontend)",
+    "status": "in_progress"
   }
 ]

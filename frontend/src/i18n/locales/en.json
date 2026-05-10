@@ -33,6 +33,7 @@
     "attacks": "Attack Analysis",
     "users": "Users",
     "block_page": "Block Page",
+    "url_filter": "URL Filter",
     "export": "Export"
   },
   "common": {
@@ -204,7 +205,33 @@
     "new": "New interface",
     "discover": "Auto-detect",
     "discover_success": "{{count}} interface(s) detected and added",
-    "discover_none": "No new interfaces found (all already registered)"
+    "discover_none": "No new interfaces found (all already registered)",
+    "connection_type": "Connection type",
+    "dns_servers": "DNS servers",
+    "pppoe_username": "PPPoE Username",
+    "pppoe_password": "PPPoE Password",
+    "pppoe_service": "Service-name",
+    "service": "Service",
+    "dhcp_hint": "DHCP: IP/gateway/DNS will be obtained automatically from the network's DHCP server.",
+    "pppoe_hint": "PPPoE will be applied via Netplan (renderer networkd). Auto MTU: 1492.",
+    "view_netplan": "View Netplan",
+    "netplan_title": "Generated Netplan YAML",
+    "netplan_subtitle": "Apply manually on the server with sudo netplan apply.",
+    "netplan_copy": "Copy YAML",
+    "netplan_download": "Download file",
+    "netplan_copied": "Content copied!"
+  },
+  "url_filter": {
+    "title": "URL Filter",
+    "subtitle": "Block or redirect domains by resolving them to IPs and applying to firewall.",
+    "new": "New filter",
+    "domains": "Domains",
+    "domains_hint": "One domain per line (e.g.: facebook.com). Domains are resolved to IPs and used in firewall rules.",
+    "action": "Action",
+    "source": "Source",
+    "resolve_all": "Re-resolve all",
+    "empty_title": "No URL filter configured",
+    "empty_hint": "Create filters to block specific domains by IP — ideal for social networks, streaming or malicious sites."
   },
   "logs": {
     "title": "Live logs",

@@ -1,157 +1,165 @@
-# plan.md (Updated)
+# plan.md (Atualizado)
 
 ## Objectives
-- Deliver a pfSense-like **web management UI** (not an OS) for Ubuntu 24: **FastAPI + React + MongoDB**.
-- Provide **bilingual UI (PT/EN)** with instant language toggle.
-- Implement modules: **Dashboard (live metrics)**, **Firewall Rules**, **NAT**, **VPN (OpenVPN/WireGuard)**, **DHCP**, **DNS**, **Aliases**, **Interfaces**, **Logs**, **Users/Roles**.
-- Operate in **Simulation/Demo mode** (Mongo-backed state + realistic simulated metrics/logs), plus **export** of nftables/iptables scripts.
-- Ship polished **dark NOC/SOC premium** theme (cyan/emerald accents, glass surfaces, monospace numerics).
+- Entregar um console estilo pfSense (UI web de gerenciamento, não um SO) para Ubuntu 24: **FastAPI + React + MongoDB**.
+- Fornecer UI **bilíngue (PT/EN)** com alternância instantânea.
+- Implementar módulos: **Dashboard (métricas reais/live)**, **Regras de Firewall**, **NAT**, **VPN**, **DHCP**, **DNS**, **Aliases**, **Interfaces**, **Logs**, **Usuários/Roles**, **Análise de Ataques**.
+- Operar em **modo produção via Docker Compose** aplicando regras **REAIS** de `nftables` no host (backend privilegiado), mantendo capacidade de simulação quando aplicável.
+- Gerar e exportar artefatos reais de sistema: `nftables.conf` e **Netplan YAML**.
+- Incluir funcionalidades adicionais pedidas: **bloqueio/redirect por IP**, **página pública de bloqueio customizável**, **URL Filter (bloqueio por domínio resolvido → IP)**.
+- **Atualização visual (prioridade):** adotar novo design **corporate clean** inspirado na imagem enviada: **conteúdo claro + sidebar escura sempre**.
 
-**Current status:** Objectives above are **implemented and verified end-to-end** (Phase 2 complete, 100% test pass).
+**Status atual:** V1 funcional com RBAC + i18n + métricas reais do host + autodescoberta de interfaces; UI existente será **refatorada** para o novo padrão visual. Backend de URL Filter e export Netplan já existem; falta finalizar UI do URL Filter e adicionar visualizador Netplan na tela Interfaces.
+
+---
 
 ## Phase 1: Core Flow POC (skipped)
-- No external/high-risk integrations (no real nftables execution in preview, no OAuth). Core is standard CRUD + JWT + simulated telemetry.
-- Proceeded directly to V1 build.
+- Projeto avançou diretamente para V1.
+
+---
 
 ## Phase 2: V1 App Development (MVP, end-to-end working) — ✅ COMPLETE
+
 ### User stories (V1)
-1. As a user, I can log in with email/senha and receive a JWT to access the system. ✅
-2. As a user, I can switch UI language PT/EN instantly. ✅
-3. As a user, I see a dashboard with live-updating metrics (CPU/RAM, tráfego, conexões, bloqueios). ✅
-4. As an admin/operator, I can create/edit/enable/disable firewall rules and reorder priority. ✅
-5. As an admin, I can export the current config as **nftables.conf** and **iptables.sh**. ✅
+1. Como usuário, consigo logar (email/senha) e receber JWT. ✅
+2. Como usuário, consigo alternar idioma PT/EN instantaneamente. ✅
+3. Como usuário, vejo dashboard com métricas em tempo real. ✅ *(agora com leitura real do host)*
+4. Como admin/operator, consigo criar/editar/habilitar/desabilitar regras de firewall e reordenar prioridade. ✅
+5. Como admin, consigo exportar configuração (`nftables.conf` / `iptables.sh`). ✅
 
 ### Backend (FastAPI) — ✅ COMPLETE
-- Project structure implemented under `/app/backend` with modular routers.
-- Mongo collections implemented/used: users, firewall_rules, nat_rules, vpn_configs, dhcp_config, dhcp_leases, dns_config, dns_records, aliases, interfaces, logs, metrics_samples.
-- Auth: email/password (bcrypt) + JWT (access token), role-based guards (**admin/operator/viewer**). ✅
-- Seeded users:
-  - `admin@firewall.local / Admin@123`
-  - `operator@firewall.local / Operator@123`
-  - `viewer@firewall.local / Viewer@123`
-- Routers implemented (12):
-  - `/auth` (login, me)
-  - `/users` (admin-only writes)
-  - `/metrics` (live, summary)
-  - `/logs` (filter/search)
-  - `/firewall-rules` (CRUD, toggle, reorder)
-  - `/nat` (CRUD)
-  - `/vpn` (CRUD + peers)
-  - `/dhcp` (config + leases)
-  - `/dns` (resolver config + records CRUD)
-  - `/aliases` (CRUD)
-  - `/interfaces` (CRUD + toggle)
-  - `/export` (nftables + iptables)
-- Simulator service:
-  - Background task generates plausible metrics and logs every ~2s and updates interface counters.
-  - Retention trimming for metrics/logs.
-- Script export:
-  - Deterministic generators from Mongo state.
-  - Aliases resolved into export output.
-- Testing agent result: **Backend 100% pass (36/36)**.
-- Minor fix applied: user creation returns safe JSON by dropping `_id` prior to response.
+- Estrutura modular em `/app/backend` com routers.
+- RBAC via JWT (admin/operator/viewer). ✅
+- Seed de usuários e coleções principais. ✅
+- Métricas reais do host via `psutil` + contadores Linux (`/proc/net/dev`) (substituiu simulação para métricas). ✅
+- Autodescoberta real de interfaces (`POST /api/interfaces/discover`). ✅
+- Export Netplan YAML (`GET /api/interfaces/export/netplan`). ✅
+- URL Filtering (resolver domínio → IP + CRUD) em `/api/url-filter`. ✅ *(backend pronto; UI pendente)*
+- Aplicação real de regras via `nft` (subprocess) para ambiente de produção. ✅
 
 ### Frontend (React) — ✅ COMPLETE
-- Stack: React (CRA) + react-router-dom + shadcn/ui + Tailwind, recharts, lucide-react, axios, sonner toasts, framer-motion, i18next.
-- UX shell:
-  - Sidebar grouped (Overview / Network / Firewall / Services / Monitoring / Administration).
-  - Topbar includes PT/EN toggle + user menu (logout) + role badge.
-- Theme:
-  - Dark NOC/SOC premium theme tokens applied.
-  - Fonts: **Space Grotesk** (UI) + **JetBrains Mono** (IPs/ports/logs/code/numerics).
-- Screens implemented (all modules functional):
-  - Login (split layout)
-  - Dashboard (6 KPIs + traffic/resources/events charts + recent events + secondary KPIs)
-  - Firewall Rules (table, toggle, create/edit sheet, delete, drag reorder via @dnd-kit)
-  - NAT (CRUD + sheet)
-  - VPN (WireGuard/OpenVPN tabs, peers add/remove)
-  - DHCP (config edit + leases CRUD)
-  - DNS (resolver config + records CRUD)
-  - Aliases (cards + CRUD)
-  - Interfaces (cards + live RX/TX; admin toggle)
-  - Logs (live tail with pause/resume + severity filter + search)
-  - Users (admin-only; CRUD; cannot delete self)
-  - Export (nftables/iptables preview + copy/download)
-- Data layer:
-  - Axios JWT interceptor
-  - Polling hooks updating metrics/logs every ~2–3s.
-- Testing agent result: **All critical flows verified**, including navigation, RBAC, exports, i18n.
+- AppShell com Sidebar/Topbar, navegação por módulos. ✅
+- Páginas principais implementadas e funcionais. ✅
+- Tema anterior (dark NOC/SOC) implementado com toggle light/dark. ✅ *(será substituído na Phase 5 conforme decisão do usuário)*
 
 ### Conclude Phase 2 — ✅ COMPLETE
-- End-to-end testing via `testing_agent_v3`: **overall 100%**.
-- One minor backend serialization issue fixed.
+- Testes E2E anteriores passaram (testing_agent_v3). ✅
+
+---
 
 ## Phase 3: Feature Completion + Hardening (optional enhancements)
-> Note: Many Phase 3 goals are already met at MVP level (RBAC, full module coverage). This phase is now focused on **depth**, **validation**, **alerts**, and **operator productivity**.
+> Muitos itens de Phase 3 já foram parcialmente atendidos com RBAC, módulos completos e produção via Docker Compose. Mantida como backlog de robustez/ergonomia.
 
 ### User stories (Phase 3)
-1. As an admin, I can manage users/roles with stronger safeguards (audit trail, password policy, optional 2FA). 
-2. As an admin/operator, I get better validation and ergonomics across all modules (CIDR/IP/port/MAC validators, duplicates, bulk actions).
-3. As an operator, I can use an **Alerts** view derived from logs (bursts, port scans, brute force patterns).
-4. As an admin, I can manage Interfaces with richer settings (VLAN tags, DHCP relay toggles, interface groups) in simulation.
-5. As an admin, Aliases are first-class rule inputs (autocomplete, validation) and export shows resolved values + original alias.
+1. Como admin, quero mais salvaguardas (auditoria, política de senha, 2FA opcional). 
+2. Como admin/operator, quero melhores validações e ergonomia (CIDR/IP/porta/MAC, duplicidades, bulk actions).
+3. Como operador, quero alertas derivados de logs (port scan, brute force, bursts).
 
 ### Work items
-- Stronger validation for:
-  - Firewall rules (CIDR/IP/alias refs, port ranges, protocol-specific fields)
-  - NAT (port collisions, interface restrictions)
-  - DNS (record constraints)
-  - DHCP (range validation)
-- Alerts pipeline:
-  - Derive alerts from critical/warning patterns and event rate thresholds.
-  - Alerts dashboard + acknowledge workflow.
-- UX enhancements:
-  - Global search (rule/id/ip) via command palette.
-  - Pagination + indexing for logs.
-  - Bulk actions on rules.
-  - Better empty states and inline help.
+- Validações mais fortes e UX power-user (busca global, paginação, bulk actions).
+- Pipeline de alertas baseado em logs/eventos.
 
 ### Conclude Phase 3
-- Run a new testing_agent_v3 pass including validation/alerts and any new workflows.
-- Stabilize and document changes.
+- Rodar `testing_agent_v3` focado em validações/alertas.
+
+---
 
 ## Phase 4: Production-readiness + Packaging
 ### User stories (Phase 4)
-1. As an admin, I can backup/restore full configuration (JSON export/import with versioning).
-2. As an operator, I can export logs and run advanced search (time range, filters, correlation id).
-3. As an admin, I can configure simulator settings (rate, retention, noise profiles) in UI.
-4. As a user, I can deploy reliably via **Docker Compose** on Ubuntu 24 (frontend + backend + mongo).
-5. As an admin, I can harden security (rate limiting, CORS allowlist, optional HTTPS, environment-based secrets).
+1. Backup/restore de configuração (JSON) versionado.
+2. Busca avançada/export de logs.
+3. Hardening (rate limiting, CORS allowlist, HTTPS opcional, secrets por env).
 
 ### Work items
-- Config import/export (JSON) + versioning/migrations.
-- Log retention policies + server-side pagination + search indexes.
-- Docker Compose + env docs + one-command startup.
-- Security improvements:
-  - Password policy + login rate limits
-  - CORS tightening and secret management
-  - Optional refresh tokens
+- Import/export de config + migrações.
+- Paginação/index de logs.
+- Segurança e documentação de deploy.
 
 ### Conclude Phase 4
-- Final testing_agent_v3 run covering backup/restore, deploy readiness, log export.
-- Fix all critical issues.
+- `testing_agent_v3` cobrindo deploy e fluxos críticos.
+
+---
+
+## Phase 5: Visual Refactor + URL Filter UI + Netplan Viewer — 🚧 IN PROGRESS (Nova)
+
+### Escopo e decisões confirmadas
+- **a2:** substituir o tema atual pelo novo padrão (sem toggle light/dark).
+- **b1:** **sidebar sempre escura**.
+- **c3:** fonte principal **Open Sans**.
+- **d1:** executar as entregas em sequência: **Tema → URL Filter UI → Netplan Viewer (Interfaces)**.
+
+### User stories (Phase 5)
+1. Como usuário, quero que toda a interface siga o novo padrão visual (corporate clean) conforme a imagem fornecida. 
+2. Como admin/operator, quero gerenciar filtros de URL (domínios) e aplicar/atualizar resolução de IPs pela UI.
+3. Como admin, quero visualizar/copiar o **Netplan YAML** gerado para as interfaces (incluindo PPPoE).
+
+### Work items (Phase 5)
+#### 5.1 Refatoração visual global (P0)
+- Ajustar tipografia global para **Open Sans** (`public/index.html` + `index.css`).
+- Remover dependência do toggle dark/light na UI:
+  - Remover botão de tema do `Topbar`.
+  - Ajustar `ThemeContext` para fixar tema único (ex.: `light`) mantendo **sidebar dark via tokens**.
+  - Garantir `Toaster` sempre no tema correto (sem depender de `isDark`).
+- Atualizar tokens do tema para refletir a imagem:
+  - Conteúdo: fundo branco/near-white, cards brancos, bordas suaves, sombras leves.
+  - Sidebar: grafite/preto (#1A1A1A aprox), item ativo com azul primary (#007BFF aprox).
+  - Raio de borda mais discreto (~6px) e “cards limpos”.
+- Ajustar componentes de layout:
+  - `AppShell` (remover “SOC grid/radial” se conflitar com o estilo clean).
+  - `Sidebar` e `Topbar` para estilo corporate.
+- Revisar páginas principais (Dashboard/Firewall/NAT/etc.) para consistência (cards, tabelas, headers) com o novo tema.
+
+#### 5.2 Criar página de URL Filter no frontend (P0)
+- Criar `/app/frontend/src/pages/URLFilter.jsx`:
+  - Listagem dos filtros (`GET /api/url-filter/`).
+  - Criar/editar (Sheet/Modal) com campos: `name`, `enabled`, `source`, `action (block|redirect)`, `domains[]`, `description`.
+  - Ações: toggle (`PATCH /api/url-filter/{id}/toggle`), delete, resolve now (`POST /api/url-filter/{id}/resolve`), resolve-all (`POST /api/url-filter/resolve-all`).
+  - Exibir `last_resolved_at`, contador de IPs resolvidos e lista (colapsável) de `resolved_ips`.
+- Integrar navegação:
+  - Adicionar item no `Sidebar` (grupo Services ou Firewall, conforme UX).
+  - Adicionar rota em `App.js`.
+- i18n:
+  - Adicionar chaves em `pt.json` e `en.json`.
+
+#### 5.3 Finalizar Interfaces (Netplan Viewer + pequenos ajustes) (P1)
+- Adicionar botão “Ver Netplan” na página `Interfaces.jsx`:
+  - Consumir `GET /api/interfaces/export/netplan`.
+  - Exibir YAML em modal/sheet com `pre` + fonte mono + botão copiar/download.
+- Conferir fluxo PPPoE:
+  - Garantir que senha mascarada não sobrescreve valor real no update (já previsto no backend; manter comportamento no frontend).
+
+### Critérios de aceite (Phase 5)
+- UI global aderente ao padrão da imagem: **layout clean**, cards com sombra leve, sidebar escura permanente, primary azul.
+- Fonte Open Sans aplicada em toda a UI.
+- URL Filter funcional via UI: CRUD + toggle + resolve now + resolve all.
+- Interfaces: visualizador Netplan exibindo YAML real gerado pelo backend.
+
+---
 
 ## Implementation Steps (high-level sequence)
-1. **(Completed)** Scaffold backend + Mongo connection + seed users + JWT auth.
-2. **(Completed)** Implement CRUD across all modules + RBAC.
-3. **(Completed)** Add simulator generating metrics/logs + interface counters.
-4. **(Completed)** Build frontend AppShell + login + dashboard + all module pages.
-5. **(Completed)** Implement firewall rule reorder + export preview/download.
-6. **(Completed)** Verify i18n PT/EN and RBAC flows.
-7. **(Completed)** End-to-end testing with testing_agent_v3; apply fixes.
-8. **(Next, optional)** Phase 3: validation + alerts + productivity enhancements.
-9. **(Next, optional)** Phase 4: backup/restore + Docker packaging + hardening.
+1. **(Completed)** Scaffold backend + Mongo + seed + JWT/RBAC.
+2. **(Completed)** CRUD módulos principais + i18n.
+3. **(Completed)** Métricas reais do host + autodescoberta de interfaces.
+4. **(Completed)** Backend URL Filter + Export Netplan.
+5. **(Next / Phase 5 - P0)** Refatorar tema global (corporate clean) + aplicar Open Sans + remover toggle.
+6. **(Next / Phase 5 - P0)** Implementar página URL Filter (frontend) + rotas + i18n.
+7. **(Next / Phase 5 - P1)** Adicionar Netplan Viewer em Interfaces.
+8. **(After Phase 5)** Rodar testes de frontend (frontend testing agent) + regressão geral com `testing_agent_v3`.
+
+---
 
 ## Next Actions
-- (Optional) Decide if you want to proceed with:
-  - **Phase 3** (alerts, deeper validations, power-user UX)
-  - **Phase 4** (backup/restore + Docker Compose deployment + security hardening)
-- Confirm preferred branding/name (if you want to rename from “Firewall Console”).
+- Executar Phase 5 na ordem confirmada: **Tema → URL Filter UI → Netplan Viewer**.
+- Após validação visual e funcional: decidir se avança para Phase 3 (validações/alertas) e/ou Phase 4 (backup/restore, hardening).
+
+---
 
 ## Success Criteria
-- ✅ User can log in (admin/operator/viewer), navigate all modules, and log out.
-- ✅ Dashboard metrics and logs update live with plausible simulation.
-- ✅ Firewall rules support CRUD, enable/disable, and reorder; changes reflected in export.
-- ✅ Export downloads nftables + iptables scripts without errors.
-- ✅ PT/EN toggle works across the UI.
-- ✅ testing_agent_v3 passes end-to-end flows for key stories with no critical bugs.
+- ✅ Login + RBAC funcionando.
+- ✅ PT/EN funcionando.
+- ✅ Dashboard/Interfaces exibindo métricas reais (CPU/RAM/RX/TX) e NICs descobertas.
+- ✅ Regras de firewall/NAT/VPN/DHCP/DNS/Aliases/Logs/Usuários funcionais.
+- ✅ **Novo tema corporate clean** aplicado globalmente (sem toggle), com sidebar escura permanente.
+- ✅ URL Filter UI implementado e integrado ao backend.
+- ✅ Netplan YAML visível/copíavel pela UI.
+- ✅ `testing_agent_v3` sem bugs críticos após mudanças.

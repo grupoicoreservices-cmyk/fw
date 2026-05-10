@@ -4,7 +4,7 @@ import '@/App.css';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
-import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
+import { ThemeProvider } from '@/contexts/ThemeContext';
 import AppShell from '@/components/layout/AppShell';
 import Login from '@/pages/Login';
 import Dashboard from '@/pages/Dashboard';
@@ -21,6 +21,7 @@ import Export from '@/pages/Export';
 import Attacks from '@/pages/Attacks';
 import BlockedPublic from '@/pages/BlockedPublic';
 import BlockPageAdmin from '@/pages/BlockPageAdmin';
+import URLFilter from '@/pages/URLFilter';
 
 function Protected({ children }) {
     const { user } = useAuth();
@@ -36,11 +37,10 @@ function AdminOnly({ children }) {
 }
 
 function ThemedToaster() {
-    const { isDark } = useTheme();
     return (
         <Toaster
             position="top-right"
-            theme={isDark ? 'dark' : 'light'}
+            theme="light"
             toastOptions={{
                 style: {
                     background: 'hsl(var(--card))',
@@ -73,6 +73,7 @@ function App() {
                             <Route path="aliases" element={<Aliases />} />
                             <Route path="firewall" element={<FirewallRules />} />
                             <Route path="nat" element={<NAT />} />
+                            <Route path="url-filter" element={<URLFilter />} />
                             <Route path="vpn" element={<VPN />} />
                             <Route path="dhcp" element={<DHCP />} />
                             <Route path="dns" element={<DNS />} />

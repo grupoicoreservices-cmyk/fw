@@ -2,19 +2,17 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { ShieldCheck, KeyRound, Mail, Loader2, Cpu, Activity, Wifi, Sun, Moon } from 'lucide-react';
+import { ShieldCheck, KeyRound, Mail, Loader2, Cpu, Activity, Wifi } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
-import { useTheme } from '@/contexts/ThemeContext';
 
 export default function Login() {
     const { t, i18n } = useTranslation();
     const { user, login, loading } = useAuth();
-    const { isDark, toggle: toggleTheme } = useTheme();
     const navigate = useNavigate();
     const [email, setEmail] = useState('admin@firewall.local');
     const [password, setPassword] = useState('Admin@123');
@@ -45,24 +43,15 @@ export default function Login() {
     return (
         <div className="min-h-screen flex bg-soc bg-soc-radial relative overflow-hidden" data-testid="login-page">
             <div className="absolute top-5 right-5 z-10 flex items-center gap-2">
-                <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={toggleTheme}
-                    className="h-7 w-7 bg-[hsl(var(--surface-2))] border-border"
-                    data-testid="login-theme-toggle"
-                >
-                    {isDark ? <Sun className="w-3.5 h-3.5 text-[hsl(var(--warn))]" /> : <Moon className="w-3.5 h-3.5 text-[hsl(var(--info))]" />}
-                </Button>
                 <ToggleGroup
                     type="single"
                     value={i18n.language?.startsWith('en') ? 'en' : 'pt'}
                     onValueChange={changeLang}
-                    className="bg-[hsl(var(--surface-2))] border border-border rounded-md p-0.5"
+                    className="bg-secondary border border-border rounded-md p-0.5"
                     data-testid="login-language-toggle"
                 >
-                    <ToggleGroupItem value="pt" className="px-2.5 h-7 text-xs data-[state=on]:bg-[hsl(var(--info))]/20 data-[state=on]:text-[hsl(var(--info))]">PT</ToggleGroupItem>
-                    <ToggleGroupItem value="en" className="px-2.5 h-7 text-xs data-[state=on]:bg-[hsl(var(--info))]/20 data-[state=on]:text-[hsl(var(--info))]">EN</ToggleGroupItem>
+                    <ToggleGroupItem value="pt" className="px-2.5 h-7 text-xs data-[state=on]:bg-primary data-[state=on]:text-primary-foreground">PT</ToggleGroupItem>
+                    <ToggleGroupItem value="en" className="px-2.5 h-7 text-xs data-[state=on]:bg-primary data-[state=on]:text-primary-foreground">EN</ToggleGroupItem>
                 </ToggleGroup>
             </div>
 
